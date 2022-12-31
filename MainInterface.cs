@@ -19,18 +19,28 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			this.RefreshDeviceList();
 		}
 
-		private void ExitMenu_Click(object sender, EventArgs e) {
-			this.Close();
+		private void SaveMenu_Click(object sender, EventArgs e) {
+			if (this.usbDeviceInfo.Items.Count > 0 && this.saveFileDialog.ShowDialog(this) == DialogResult.OK) {
+				try {
+					File.WriteAllText(this.saveFileDialog.FileName, ConvertUsbDeviceInfoToText());
+				} catch (Exception ex){
+					MessageBox.Show(this, "Could not save file: " + ex.Message, Path.GetFileName(saveFileDialog.FileName), MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+			}
 		}
 
-		private void RefreshMenu_Click(object sender, EventArgs e) {
-			this.RefreshDeviceList();
+		private void ExitMenu_Click(object sender, EventArgs e) {
+			this.Close();
 		}
 
 		private void CopyMenu_Click(object sender, EventArgs e) {
 			if (this.usbDeviceInfo.Items.Count > 0) {
 				Clipboard.SetText(ConvertUsbDeviceInfoToText());
 			}
+		}
+
+		private void RefreshMenu_Click(object sender, EventArgs e) {
+			this.RefreshDeviceList();
 		}
 
 		private void RefreshDeviceList() {
@@ -322,5 +332,6 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 			return result.ToString();
 		}
+
 	}
 }

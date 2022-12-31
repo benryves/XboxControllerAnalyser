@@ -31,11 +31,13 @@
 			this.usbDeviceSplit = new System.Windows.Forms.SplitContainer();
 			this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
 			this.fileMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitMenu = new System.Windows.Forms.ToolStripMenuItem();
-			this.viewMenu = new System.Windows.Forms.ToolStripMenuItem();
-			this.refreshMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.editMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.viewMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.refreshMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
 			((System.ComponentModel.ISupportInitialize)(this.usbDeviceSplit)).BeginInit();
 			this.usbDeviceSplit.Panel1.SuspendLayout();
 			this.usbDeviceSplit.Panel2.SuspendLayout();
@@ -117,34 +119,27 @@
 			// fileMenu
 			// 
 			this.fileMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveMenu,
             this.exitMenu});
 			this.fileMenu.Name = "fileMenu";
 			this.fileMenu.Size = new System.Drawing.Size(37, 20);
 			this.fileMenu.Text = "&File";
 			// 
+			// saveMenu
+			// 
+			this.saveMenu.Name = "saveMenu";
+			this.saveMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+			this.saveMenu.Size = new System.Drawing.Size(180, 22);
+			this.saveMenu.Text = "&Save...";
+			this.saveMenu.Click += new System.EventHandler(this.SaveMenu_Click);
+			// 
 			// exitMenu
 			// 
 			this.exitMenu.Name = "exitMenu";
 			this.exitMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-			this.exitMenu.Size = new System.Drawing.Size(135, 22);
+			this.exitMenu.Size = new System.Drawing.Size(180, 22);
 			this.exitMenu.Text = "E&xit";
 			this.exitMenu.Click += new System.EventHandler(this.ExitMenu_Click);
-			// 
-			// viewMenu
-			// 
-			this.viewMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.refreshMenu});
-			this.viewMenu.Name = "viewMenu";
-			this.viewMenu.Size = new System.Drawing.Size(44, 20);
-			this.viewMenu.Text = "&View";
-			// 
-			// refreshMenu
-			// 
-			this.refreshMenu.Name = "refreshMenu";
-			this.refreshMenu.ShortcutKeys = System.Windows.Forms.Keys.F5;
-			this.refreshMenu.Size = new System.Drawing.Size(180, 22);
-			this.refreshMenu.Text = "&Refresh";
-			this.refreshMenu.Click += new System.EventHandler(this.RefreshMenu_Click);
 			// 
 			// editMenu
 			// 
@@ -158,9 +153,29 @@
 			// 
 			this.copyMenu.Name = "copyMenu";
 			this.copyMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-			this.copyMenu.Size = new System.Drawing.Size(180, 22);
+			this.copyMenu.Size = new System.Drawing.Size(144, 22);
 			this.copyMenu.Text = "&Copy";
 			this.copyMenu.Click += new System.EventHandler(this.CopyMenu_Click);
+			// 
+			// viewMenu
+			// 
+			this.viewMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.refreshMenu});
+			this.viewMenu.Name = "viewMenu";
+			this.viewMenu.Size = new System.Drawing.Size(44, 20);
+			this.viewMenu.Text = "&View";
+			// 
+			// refreshMenu
+			// 
+			this.refreshMenu.Name = "refreshMenu";
+			this.refreshMenu.ShortcutKeys = System.Windows.Forms.Keys.F5;
+			this.refreshMenu.Size = new System.Drawing.Size(132, 22);
+			this.refreshMenu.Text = "&Refresh";
+			this.refreshMenu.Click += new System.EventHandler(this.RefreshMenu_Click);
+			// 
+			// saveFileDialog
+			// 
+			this.saveFileDialog.Filter = "Text files (*.txt)|*.txt";
 			// 
 			// MainInterface
 			// 
@@ -198,5 +213,7 @@
 		private ToolStripMenuItem refreshMenu;
 		private ToolStripMenuItem editMenu;
 		private ToolStripMenuItem copyMenu;
+		private ToolStripMenuItem saveMenu;
+		private SaveFileDialog saveFileDialog;
 	}
 }
