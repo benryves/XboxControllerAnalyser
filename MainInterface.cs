@@ -300,6 +300,12 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 											CreateUsbDeviceInfoListViewItem("Right Stick X", "0x" + state.RightStickX.ToString("X4")),
 											CreateUsbDeviceInfoListViewItem("Right Stick Y", "0x" + state.RightStickY.ToString("X4")),
 										});
+									} else if (capabilityType == 1 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController) {
+										var state = new XboxInputDevice.GameControllerOutputState(response);
+										this.usbDeviceInfo.Items.AddRange(new[]{
+											CreateUsbDeviceInfoListViewItem("Left Actuator Strength", "0x" + state.LeftActuatorStrength.ToString("X4")),
+											CreateUsbDeviceInfoListViewItem("Right Actuator Strength", "0x" + state.RightActuatorStrength.ToString("X4")),
+										});
 									} else {
 										for (int i = 2; i < response[1]; i += 4) {
 											var data = new List<string>();

@@ -68,5 +68,17 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		};
 
+		public struct GameControllerOutputState {
+
+			public ushort LeftActuatorStrength;
+			public ushort RightActuatorStrength;
+
+			public GameControllerOutputState(byte[] report) {
+				this.LeftActuatorStrength = (ushort)(report[2] | (report[3] << 8));
+				this.RightActuatorStrength = (ushort)(report[4] | (report[5] << 8));
+			}
+
+		}
+
 	}
 }
