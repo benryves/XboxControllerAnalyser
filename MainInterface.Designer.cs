@@ -50,7 +50,7 @@
 			this.usbDeviceTree.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.usbDeviceTree.Location = new System.Drawing.Point(0, 0);
 			this.usbDeviceTree.Name = "usbDeviceTree";
-			this.usbDeviceTree.Size = new System.Drawing.Size(266, 426);
+			this.usbDeviceTree.Size = new System.Drawing.Size(266, 437);
 			this.usbDeviceTree.TabIndex = 0;
 			this.usbDeviceTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.UsbDeviceTree_AfterSelect);
 			// 
@@ -65,7 +65,7 @@
 			this.usbDeviceInfo.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.usbDeviceInfo.Location = new System.Drawing.Point(0, 0);
 			this.usbDeviceInfo.Name = "usbDeviceInfo";
-			this.usbDeviceInfo.Size = new System.Drawing.Size(530, 426);
+			this.usbDeviceInfo.Size = new System.Drawing.Size(674, 437);
 			this.usbDeviceInfo.TabIndex = 2;
 			this.usbDeviceInfo.UseCompatibleStateImageBehavior = false;
 			this.usbDeviceInfo.View = System.Windows.Forms.View.Details;
@@ -84,7 +84,7 @@
 			// usbDeviceInfoDescriptionColumn
 			// 
 			this.usbDeviceInfoDescriptionColumn.Text = "Description";
-			this.usbDeviceInfoDescriptionColumn.Width = 100;
+			this.usbDeviceInfoDescriptionColumn.Width = 300;
 			// 
 			// usbDeviceSplit
 			// 
@@ -100,7 +100,7 @@
 			// usbDeviceSplit.Panel2
 			// 
 			this.usbDeviceSplit.Panel2.Controls.Add(this.usbDeviceInfo);
-			this.usbDeviceSplit.Size = new System.Drawing.Size(800, 426);
+			this.usbDeviceSplit.Size = new System.Drawing.Size(944, 437);
 			this.usbDeviceSplit.SplitterDistance = 266;
 			this.usbDeviceSplit.TabIndex = 3;
 			// 
@@ -112,7 +112,7 @@
             this.viewMenu});
 			this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
 			this.mainMenuStrip.Name = "mainMenuStrip";
-			this.mainMenuStrip.Size = new System.Drawing.Size(800, 24);
+			this.mainMenuStrip.Size = new System.Drawing.Size(944, 24);
 			this.mainMenuStrip.TabIndex = 4;
 			this.mainMenuStrip.Text = "menuStrip1";
 			// 
@@ -129,7 +129,7 @@
 			// 
 			this.saveMenu.Name = "saveMenu";
 			this.saveMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-			this.saveMenu.Size = new System.Drawing.Size(180, 22);
+			this.saveMenu.Size = new System.Drawing.Size(147, 22);
 			this.saveMenu.Text = "&Save...";
 			this.saveMenu.Click += new System.EventHandler(this.SaveMenu_Click);
 			// 
@@ -137,7 +137,7 @@
 			// 
 			this.exitMenu.Name = "exitMenu";
 			this.exitMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-			this.exitMenu.Size = new System.Drawing.Size(180, 22);
+			this.exitMenu.Size = new System.Drawing.Size(147, 22);
 			this.exitMenu.Text = "E&xit";
 			this.exitMenu.Click += new System.EventHandler(this.ExitMenu_Click);
 			// 
@@ -181,7 +181,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.ClientSize = new System.Drawing.Size(944, 461);
 			this.Controls.Add(this.usbDeviceSplit);
 			this.Controls.Add(this.mainMenuStrip);
 			this.MainMenuStrip = this.mainMenuStrip;
