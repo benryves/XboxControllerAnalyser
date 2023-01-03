@@ -220,69 +220,68 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 								});
 							}
 						}
-					}
-				}
 
-				// GET_DESCRIPTOR
-				short maxInputReportSize = 0;
-				short maxOutputReportSize = 0;
-				{
-					UsbSetupPacket setupPacket = new UsbSetupPacket {
-						RequestType = 0xC1,
-						Request = 6,
-						Value = 0x4200,
-						Index = 0,
-						Length = 16,
-					};
-					if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
-						this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID Descriptor"));
-						this.usbDeviceInfo.Items.AddRange(new[]{
-							CreateUsbDeviceInfoListViewItem("Length", "0x" + response[0].ToString("X2"), response[0].ToString() + " bytes"),
-							CreateUsbDeviceInfoListViewItem("Descriptor Type", "0x" + response[1].ToString("X2")),
-							CreateUsbDeviceInfoListViewItem("BCD XID", "0x" + (response[2] | response[3] << 8).ToString("X4")),
-							CreateUsbDeviceInfoListViewItem("Type", "0x" + response[4].ToString("X2")),
-							CreateUsbDeviceInfoListViewItem("Sub Type", "0x" + response[5].ToString("X2")),
-							CreateUsbDeviceInfoListViewItem("Max Input Report Size", "0x" + (maxInputReportSize = response[6]).ToString("X2"), response[6].ToString() + " bytes"),
-							CreateUsbDeviceInfoListViewItem("Max Output Report Size", "0x" + (maxOutputReportSize = response[7]).ToString("X2"), response[7].ToString() + " bytes"),
-						});
-						for (int i = 0; i < 4; ++i) {
-							this.usbDeviceInfo.Items.Add(CreateUsbDeviceInfoListViewItem("Alternate ID " + i.ToString(), "0x" + (response[8 + i * 2 + 0] | response[8 + i * 2 + 1] << 8).ToString("X4")));
+						// GET_DESCRIPTOR
+						short maxInputReportSize = 0;
+						short maxOutputReportSize = 0;
+						{
+							UsbSetupPacket setupPacket = new UsbSetupPacket {
+								RequestType = 0xC1,
+								Request = 6,
+								Value = 0x4200,
+								Index = interfaceInfo.Descriptor.InterfaceID,
+								Length = 16,
+							};
+							if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
+								this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID Descriptor"));
+								this.usbDeviceInfo.Items.AddRange(new[]{
+									CreateUsbDeviceInfoListViewItem("Length", "0x" + response[0].ToString("X2"), response[0].ToString() + " bytes"),
+									CreateUsbDeviceInfoListViewItem("Descriptor Type", "0x" + response[1].ToString("X2")),
+									CreateUsbDeviceInfoListViewItem("BCD XID", "0x" + (response[2] | response[3] << 8).ToString("X4")),
+									CreateUsbDeviceInfoListViewItem("Type", "0x" + response[4].ToString("X2")),
+									CreateUsbDeviceInfoListViewItem("Sub Type", "0x" + response[5].ToString("X2")),
+									CreateUsbDeviceInfoListViewItem("Max Input Report Size", "0x" + (maxInputReportSize = response[6]).ToString("X2"), response[6].ToString() + " bytes"),
+									CreateUsbDeviceInfoListViewItem("Max Output Report Size", "0x" + (maxOutputReportSize = response[7]).ToString("X2"), response[7].ToString() + " bytes"),
+								});
+								for (int i = 0; i < 4; ++i) {
+									this.usbDeviceInfo.Items.Add(CreateUsbDeviceInfoListViewItem("Alternate ID " + i.ToString(), "0x" + (response[8 + i * 2 + 0] | response[8 + i * 2 + 1] << 8).ToString("X4")));
+								}
+							}
 						}
-					}
-				}
 
-				// GET_CAPABILITIES
-				for (int capabilityType = 0; capabilityType < 2; ++capabilityType) {
+						// GET_CAPABILITIES
+						for (int capabilityType = 0; capabilityType < 2; ++capabilityType) {
 
-					var maxReportSize = new[] { maxInputReportSize, maxOutputReportSize }[capabilityType];
+							var maxReportSize = new[] { maxInputReportSize, maxOutputReportSize }[capabilityType];
 
-					if (maxReportSize > 0) {
-						UsbSetupPacket setupPacket = new UsbSetupPacket {
-							RequestType = 0xC1,
-							Request = 1,
-							Value = (short)(new[] { 0x0100, 0x0200 }[capabilityType]),
-							Index = 0,
-							Length = maxReportSize,
-						};
-						if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
-							this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID " + new[] { "Input", "Output" }[capabilityType] + " Capabilities"));
-							this.usbDeviceInfo.Items.AddRange(new[]{
-							CreateUsbDeviceInfoListViewItem("Report ID", "0x" + response[0].ToString("X2")),
-							CreateUsbDeviceInfoListViewItem("Length", "0x" + response[1].ToString("X2"), response[1].ToString() + " bytes"),
-						});
-							for (int i = 2; i < response[1]; i += 4) {
-								var data = new List<string>();
-								for (int j = 0; j < 4; ++j) {
-									if (i + j < response[1]) {
-										data.Add("0x" + response[i + j].ToString("X2"));
+							if (maxReportSize > 0) {
+								UsbSetupPacket setupPacket = new UsbSetupPacket {
+									RequestType = 0xC1,
+									Request = 1,
+									Value = (short)(new[] { 0x0100, 0x0200 }[capabilityType]),
+									Index = interfaceInfo.Descriptor.InterfaceID,
+									Length = maxReportSize,
+								};
+								if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
+									this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID " + new[] { "Input", "Output" }[capabilityType] + " Capabilities"));
+									this.usbDeviceInfo.Items.AddRange(new[]{
+										CreateUsbDeviceInfoListViewItem("Report ID", "0x" + response[0].ToString("X2")),
+										CreateUsbDeviceInfoListViewItem("Length", "0x" + response[1].ToString("X2"), response[1].ToString() + " bytes"),
+									});
+									for (int i = 2; i < response[1]; i += 4) {
+										var data = new List<string>();
+										for (int j = 0; j < 4; ++j) {
+											if (i + j < response[1]) {
+												data.Add("0x" + response[i + j].ToString("X2"));
+											}
+										}
+										this.usbDeviceInfo.Items.Add(CreateUsbDeviceInfoListViewItem("Capabilities [0x" + i.ToString("X2") + "~0x" + Math.Min(i + 4, response[1]).ToString("X2") + "]", string.Join(" ", data.ToArray())));
 									}
 								}
-								this.usbDeviceInfo.Items.Add(CreateUsbDeviceInfoListViewItem("Capabilities [0x" + i.ToString("X2") + "~0x" + Math.Min(i + 4, response[1]).ToString("X2") + "]", string.Join(" ", data.ToArray())));
 							}
 						}
 					}
 				}
-				
 			}
 		}
 
