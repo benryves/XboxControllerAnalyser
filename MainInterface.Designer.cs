@@ -37,6 +37,7 @@
 			this.copyMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.viewMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.refreshMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.livePreviewMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
 			((System.ComponentModel.ISupportInitialize)(this.usbDeviceSplit)).BeginInit();
 			this.usbDeviceSplit.Panel1.SuspendLayout();
@@ -53,6 +54,7 @@
 			this.usbDeviceTree.Size = new System.Drawing.Size(266, 437);
 			this.usbDeviceTree.TabIndex = 0;
 			this.usbDeviceTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.UsbDeviceTree_AfterSelect);
+			this.usbDeviceTree.DoubleClick += new System.EventHandler(this.UsbDeviceTree_DoubleClick);
 			// 
 			// usbDeviceInfo
 			// 
@@ -160,7 +162,8 @@
 			// viewMenu
 			// 
 			this.viewMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.refreshMenu});
+            this.refreshMenu,
+            this.livePreviewMenu});
 			this.viewMenu.Name = "viewMenu";
 			this.viewMenu.Size = new System.Drawing.Size(44, 20);
 			this.viewMenu.Text = "&View";
@@ -169,9 +172,16 @@
 			// 
 			this.refreshMenu.Name = "refreshMenu";
 			this.refreshMenu.ShortcutKeys = System.Windows.Forms.Keys.F5;
-			this.refreshMenu.Size = new System.Drawing.Size(132, 22);
+			this.refreshMenu.Size = new System.Drawing.Size(180, 22);
 			this.refreshMenu.Text = "&Refresh";
 			this.refreshMenu.Click += new System.EventHandler(this.RefreshMenu_Click);
+			// 
+			// livePreviewMenu
+			// 
+			this.livePreviewMenu.Name = "livePreviewMenu";
+			this.livePreviewMenu.Size = new System.Drawing.Size(180, 22);
+			this.livePreviewMenu.Text = "Live Preview...";
+			this.livePreviewMenu.Click += new System.EventHandler(this.LivePreviewMenu_Click);
 			// 
 			// saveFileDialog
 			// 
@@ -215,5 +225,6 @@
 		private ToolStripMenuItem copyMenu;
 		private ToolStripMenuItem saveMenu;
 		private SaveFileDialog saveFileDialog;
+		private ToolStripMenuItem livePreviewMenu;
 	}
 }

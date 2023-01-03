@@ -4,6 +4,7 @@ using LibUsbDotNet.Info;
 using LibUsbDotNet.LibUsb;
 using LibUsbDotNet.Main;
 using LibUsbDotNet.WinUsb;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
@@ -44,6 +45,49 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		private void RefreshMenu_Click(object sender, EventArgs e) {
 			this.RefreshDeviceList();
+		}
+
+		private void LivePreviewMenu_Click(object sender, EventArgs e) {
+
+			UsbDevice? device = null;
+
+			if (livePreviewMenu.Tag is LibUsbDevice) {
+				device = (LibUsbDevice)livePreviewMenu.Tag;
+			}
+			if (livePreviewMenu.Tag is WinUsbDevice) {
+				device = (WinUsbDevice)livePreviewMenu.Tag;
+			}
+
+			if (device != null) {
+				if (!device.Open()) {
+					MessageBox.Show(this, "Could not open device for live preview.", "Live Preview", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				} else {
+					// GET_DESCRIPTOR
+					UsbSetupPacket setupPacket = new UsbSetupPacket {
+						RequestType = 0xC1,
+						Request = 6,
+						Value = 0x4200,
+						Index = 0,
+						Length = 16,
+					};
+					if (!GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
+						MessageBox.Show(this, "Could not get device descriptor for live preview.", "Live Preview", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					} else {
+						switch ((XboxInputDevice.ControllerType)response[4]) {
+							case XboxInputDevice.ControllerType.GameController:
+								new GameControllerStatePreview {
+									Device = device
+								}.ShowDialog(this);
+								break;
+							default:
+								MessageBox.Show(this, "Unsupported device type 0x" + response[4].ToString("X2") + " for live preview.", "Live Preview", MessageBoxButtons.OK, MessageBoxIcon.Information);
+								break;
+						}
+						
+					}
+					device.Close();
+				}
+			}
 		}
 
 		private void RefreshDeviceList() {
@@ -149,6 +193,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			
 			// Start from empty
 			this.ClearUsbDeviceInfo();
+			livePreviewMenu.Tag = null;
 
 			// Only show device info if it's open
 			if (device.IsOpen) {
@@ -320,6 +365,9 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 								}
 							}
 						}
+						if (xboxInputDeviceType == XboxInputDevice.ControllerType.GameController) {
+							livePreviewMenu.Tag = device;
+						}
 					}
 				}
 			}
@@ -349,6 +397,10 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			}
 		}
 
+		private void UsbDeviceTree_DoubleClick(object sender, EventArgs e) {
+			livePreviewMenu.PerformClick();
+		}
+
 		private string ConvertUsbDeviceInfoToText() {
 			
 			StringBuilder result = new StringBuilder(1024);
@@ -371,6 +423,5 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 			return result.ToString();
 		}
-
 	}
 }
