@@ -314,13 +314,22 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 							var maxReportSize = new[] { maxInputReportSize, maxOutputReportSize }[capabilityType];
 
 							if (maxReportSize > 0) {
+								
 								UsbSetupPacket setupPacket = new UsbSetupPacket {
 									RequestType = 0xC1,
 									Request = 1,
 									Value = (short)(new[] { 0x0100, 0x0200 }[capabilityType]),
 									Index = interfaceInfo.Descriptor.InterfaceID,
-									Length = maxReportSize,
+									Length = 2,
 								};
+
+								// Try to get the actual response length with an artificially shortened request
+								if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] getSizeResponse) && getSizeResponse[1] > 0) {
+									setupPacket.Length = getSizeResponse[1];
+								} else {
+									setupPacket.Length = maxReportSize;
+								}
+
 								if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
 									this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID " + new[] { "Input", "Output" }[capabilityType] + " Capabilities"));
 									this.usbDeviceInfo.Items.AddRange(new[]{
@@ -328,7 +337,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 										CreateUsbDeviceInfoListViewItem("Length", "0x" + response[1].ToString("X2"), response[1].ToString() + " bytes"),
 									});
 
-									if (capabilityType == 0 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController) {
+									if (capabilityType == 0 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController && response.Length >= 20) {
 										var state = new XboxInputDevice.GameControllerInputState(response);
 										this.usbDeviceInfo.Items.AddRange(new[]{
 											CreateUsbDeviceInfoListViewItem("Digital Buttons", "0x" + ((byte)state.DigitalButtons).ToString("X2"), state.DigitalButtons.ToString()),
@@ -345,7 +354,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 											CreateUsbDeviceInfoListViewItem("Right Stick X", "0x" + state.RightStickX.ToString("X4")),
 											CreateUsbDeviceInfoListViewItem("Right Stick Y", "0x" + state.RightStickY.ToString("X4")),
 										});
-									} else if (capabilityType == 1 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController) {
+									} else if (capabilityType == 1 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController && response.Length >= 6) {
 										var state = new XboxInputDevice.GameControllerOutputState(response);
 										this.usbDeviceInfo.Items.AddRange(new[]{
 											CreateUsbDeviceInfoListViewItem("Left Actuator Strength", "0x" + state.LeftActuatorStrength.ToString("X4")),
