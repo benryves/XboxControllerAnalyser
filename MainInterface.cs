@@ -253,10 +253,10 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 						CreateUsbDeviceInfoListViewItem("Vendor ID", "0x" + descriptor.VendorID.ToString("X4")),
 						CreateUsbDeviceInfoListViewItem("Product ID", "0x" + descriptor.ProductID.ToString("X4")),
 						CreateUsbDeviceInfoListViewItem("BCD Device", "0x" + descriptor.BcdDevice.ToString("X4")),
-						CreateUsbDeviceInfoListViewItem("Manufacturer Index", descriptor.ManufacturerStringIndex.ToString("X2"), device.Info.ManufacturerString),
-						CreateUsbDeviceInfoListViewItem("Product Index", descriptor.ProductStringIndex.ToString("X2"), device.Info.ProductString),
-						CreateUsbDeviceInfoListViewItem("Serial Number", descriptor.SerialStringIndex.ToString("X2"), device.Info.SerialString),
-						CreateUsbDeviceInfoListViewItem("Configuration Count", descriptor.ConfigurationCount.ToString("X2")),
+						CreateUsbDeviceInfoListViewItem("Manufacturer Index", "0x" + descriptor.ManufacturerStringIndex.ToString("X2"), device.Info.ManufacturerString),
+						CreateUsbDeviceInfoListViewItem("Product Index", "0x" + descriptor.ProductStringIndex.ToString("X2"), device.Info.ProductString),
+						CreateUsbDeviceInfoListViewItem("Serial Number", "0x" + descriptor.SerialStringIndex.ToString("X2"), device.Info.SerialString),
+						CreateUsbDeviceInfoListViewItem("Configuration Count", "0x" + descriptor.ConfigurationCount.ToString("X2")),
 					});
 				}
 
