@@ -389,6 +389,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 										var state = new XboxInputDevice.GameControllerInputState(response);
 										this.usbDeviceInfo.Items.AddRange(new[]{
 											CreateUsbDeviceInfoListViewItem("Digital Buttons", "0x" + ((byte)state.DigitalButtons).ToString("X2"), state.DigitalButtons.ToString()),
+											CreateUsbDeviceInfoListViewItem("Light Gun Flags", "0x" + ((byte)state.LightGunFlags).ToString("X2"), state.LightGunFlags.ToString()),
 											CreateUsbDeviceInfoListViewItem("A", "0x" + state.A.ToString("X2")),
 											CreateUsbDeviceInfoListViewItem("B", "0x" + state.B.ToString("X2")),
 											CreateUsbDeviceInfoListViewItem("X", "0x" + state.X.ToString("X2")),

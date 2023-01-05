@@ -22,7 +22,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 		};
 
 		[Flags]
-		public enum GameControllerDigitalButtons {
+		public enum GameControllerDigitalButtons : byte {
 			None = 0,
 			Up = 0x01,
 			Down = 0x02,
@@ -34,9 +34,18 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			RightStick = 0x80,
 		};
 
+		[Flags]
+		public enum GameControllerLightGunFlags : byte {
+			None = 0,
+			LightVisible = 0x20,
+			Unknown1 = 0x40,
+			Unknown2 = 0x80,
+		};
+
 		public struct GameControllerInputState {
 
 			public GameControllerDigitalButtons DigitalButtons;
+			public GameControllerLightGunFlags LightGunFlags;
 			public byte A;
 			public byte B;
 			public byte X;
@@ -52,6 +61,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 			public GameControllerInputState(byte[] report) {
 				this.DigitalButtons = (GameControllerDigitalButtons)report[2];
+				this.LightGunFlags = (GameControllerLightGunFlags)report[3];
 				this.A = report[4];
 				this.B = report[5];
 				this.X = report[6];
