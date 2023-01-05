@@ -23,11 +23,21 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			this.RefreshDeviceList();
 		}
 
+		// File menu
+
+		private void FileMenu_DropDownOpening(object sender, EventArgs e) {
+			this.saveMenu.Enabled = this.usbDeviceInfo.Items.Count > 0;
+		}
+
+		private void FileMenu_DropDownClosed(object sender, EventArgs e) {
+			this.saveMenu.Enabled = true;
+		}
+
 		private void SaveMenu_Click(object sender, EventArgs e) {
 			if (this.usbDeviceInfo.Items.Count > 0 && this.saveFileDialog.ShowDialog(this) == DialogResult.OK) {
 				try {
 					File.WriteAllText(this.saveFileDialog.FileName, ConvertUsbDeviceInfoToText());
-				} catch (Exception ex){
+				} catch (Exception ex) {
 					MessageBox.Show(this, "Could not save file: " + ex.Message, Path.GetFileName(saveFileDialog.FileName), MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
@@ -37,10 +47,31 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			this.Close();
 		}
 
+		// Edit menu
+
+		private void EditMenu_DropDownOpening(object sender, EventArgs e) {
+			this.saveMenu.Enabled = this.usbDeviceInfo.Items.Count > 0;
+		}
+
+		private void EditMenu_DropDownClosed(object sender, EventArgs e) {
+			this.copyMenu.Enabled = true;
+		}
+
+
 		private void CopyMenu_Click(object sender, EventArgs e) {
 			if (this.usbDeviceInfo.Items.Count > 0) {
 				Clipboard.SetText(ConvertUsbDeviceInfoToText());
 			}
+		}
+
+		// View menu
+
+		private void ViewMenu_DropDownOpening(object sender, EventArgs e) {
+			this.livePreviewMenu.Enabled = this.livePreviewMenu.Tag is UsbDevice;
+		}
+
+		private void ViewMenu_DropDownClosed(object sender, EventArgs e) {
+			this.livePreviewMenu.Enabled = true;
 		}
 
 		private void RefreshMenu_Click(object sender, EventArgs e) {
@@ -150,6 +181,13 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			if (selectedNode != null) {
 				this.usbDeviceTree.SelectedNode = selectedNode;
 			}
+
+			if (this.usbDeviceTree.Nodes.Count == 0) {
+				this.usbDeviceTree.Nodes.Add("No libusb/WinUSB devices found");
+				this.usbDeviceTree.Font = new Font(this.usbDeviceTree.Font, FontStyle.Italic);
+			} else {
+				this.usbDeviceTree.Font = new Font(this.usbDeviceTree.Font, FontStyle.Regular);
+			}
 		}
 
 		private ListViewItem CreateUsbDeviceInfoListViewItem(string field, string value, string description = "", ListViewGroup? group = null) {
@@ -171,6 +209,8 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			// Start from an empty data list
 			this.usbDeviceInfo.Items.Clear();
 			this.usbDeviceInfo.Groups.Clear();
+			// Forget about live previewing too!
+			this.livePreviewMenu.Tag = null;
 		}
 
 		private bool GetUsbDeviceControlTransferData(UsbDevice device, ref UsbSetupPacket setupPacket, out byte[] response) {
@@ -279,9 +319,17 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 								Request = 6,
 								Value = 0x4200,
 								Index = interfaceInfo.Descriptor.InterfaceID,
-								Length = 16,
+								Length = 1,
 							};
-							if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
+
+							// Try to get the actual response length with an artificially shortened request
+							if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] getSizeResponse) && getSizeResponse[0] > 0) {
+								setupPacket.Length = getSizeResponse[0];
+							} else {
+								setupPacket.Length = 16;
+							}
+
+							if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response) && response.Length >= 16) {
 								this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID Descriptor"));
 
 								xboxInputDeviceType = (XboxInputDevice.ControllerType)response[4];
