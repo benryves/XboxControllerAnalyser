@@ -14,22 +14,6 @@ using System.Text;
 namespace BeeDevelopment.XboxControllerAnalyser {
 	public partial class MainInterface : Form {
 
-		// Ctrl key handler
-
-		private bool CtrlHeld = false;
-		
-		protected override void OnKeyDown(KeyEventArgs e) {
-			if (e.KeyCode == Keys.ControlKey) CtrlHeld = true;
-			e.SuppressKeyPress = false;
-			base.OnKeyDown(e);
-		}
-
-		protected override void OnKeyUp(KeyEventArgs e) {
-			if (e.KeyCode == Keys.ControlKey) CtrlHeld = false;
-			e.SuppressKeyPress = false;
-			base.OnKeyUp(e);
-		}
-
 		public MainInterface() {
 			InitializeComponent();
 			this.Text = Application.ProductName;
@@ -123,8 +107,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 						switch ((XboxInputDevice.ControllerType)response[4]) {
 							case XboxInputDevice.ControllerType.GameController:
 								new GameControllerStatePreview {
-									Device = device,
-									ShowUnusedFields = this.CtrlHeld
+									Device = device
 								}.ShowDialog(this);
 								break;
 							default:

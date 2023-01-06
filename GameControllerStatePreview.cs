@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq;
@@ -21,27 +22,27 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 		public UsbDevice? Device { get; set; }
 		public bool ShowUnusedFields { get; set; }
 
-		ListViewItem.ListViewSubItem dpad;
-		ListViewItem.ListViewSubItem start;
-		ListViewItem.ListViewSubItem back;
-		ListViewItem.ListViewSubItem leftStickButton;
-		ListViewItem.ListViewSubItem rightStickButton;
-		
-		ListViewItem.ListViewSubItem lightGunLightVisible;
-		ListViewItem.ListViewSubItem lightGunUnknown1;
-		ListViewItem.ListViewSubItem lightGunUnknown2;
+		[AllowNull] ListViewItem.ListViewSubItem dpad;
+		[AllowNull] ListViewItem.ListViewSubItem start;
+		[AllowNull] ListViewItem.ListViewSubItem back;
+		[AllowNull] ListViewItem.ListViewSubItem leftStickButton;
+		[AllowNull] ListViewItem.ListViewSubItem rightStickButton;
 
-		ListViewItem.ListViewSubItem a;
-		ListViewItem.ListViewSubItem b;
-		ListViewItem.ListViewSubItem x;
-		ListViewItem.ListViewSubItem y;
-		ListViewItem.ListViewSubItem black;
-		ListViewItem.ListViewSubItem white;
-		ListViewItem.ListViewSubItem leftTrigger;
-		ListViewItem.ListViewSubItem rightTrigger;
-		
-		ListViewItem.ListViewSubItem leftStick;
-		ListViewItem.ListViewSubItem rightStick;
+		[AllowNull] ListViewItem.ListViewSubItem lightGunLightVisible;
+		[AllowNull] ListViewItem.ListViewSubItem lightGunUnknown1;
+		[AllowNull] ListViewItem.ListViewSubItem lightGunUnknown2;
+
+		[AllowNull] ListViewItem.ListViewSubItem a;
+		[AllowNull] ListViewItem.ListViewSubItem b;
+		[AllowNull] ListViewItem.ListViewSubItem x;
+		[AllowNull] ListViewItem.ListViewSubItem y;
+		[AllowNull] ListViewItem.ListViewSubItem black;
+		[AllowNull] ListViewItem.ListViewSubItem white;
+		[AllowNull] ListViewItem.ListViewSubItem leftTrigger;
+		[AllowNull] ListViewItem.ListViewSubItem rightTrigger;
+
+		[AllowNull] ListViewItem.ListViewSubItem leftStick;
+		[AllowNull] ListViewItem.ListViewSubItem rightStick;
 
 		private ListViewItem.ListViewSubItem CreateLivePreviewListViewItem(string field) {
 			
@@ -63,9 +64,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			return subItem;
 		}
 
-		public GameControllerStatePreview() {
-			InitializeComponent();
-
+		private void AddAllPreviewFields() {
 			this.livePreviewFields.Items.Clear();
 			this.livePreviewFields.Groups.Clear();
 
@@ -97,17 +96,14 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			this.leftStick = this.CreateLivePreviewListViewItem("Left Stick");
 			this.rightStick = this.CreateLivePreviewListViewItem("Right Stick");
 
+			this.leftActuatorStrength.Enabled = this.leftActuatorLabel.Enabled = true;
+			this.rightActuatorStrength.Enabled = this.rightActuatorLabel.Enabled = true;
 		}
 
-		private void GameControllerStatePreview_Load(object sender, EventArgs e) {
-
-			// double-buffer list view
-			var prop = typeof(ListView).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
-			if (prop != null) prop.SetValue(this.livePreviewFields, true, null);
-
+		private void RemoveUnusedPreviewFields() {
 			// get capabilities to hide unused fields
-			if (this.Device != null && !this.ShowUnusedFields) {
-				
+			if (this.Device != null) {
+
 				// input
 				{
 					UsbSetupPacket setupPacket = new UsbSetupPacket {
@@ -186,6 +182,24 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 						this.rightActuatorStrength.Enabled = this.rightActuatorLabel.Enabled = false;
 					}
 				}
+			}
+		}
+
+		public GameControllerStatePreview() {
+			InitializeComponent();
+			this.AddAllPreviewFields();
+		}
+
+		private void GameControllerStatePreview_Load(object sender, EventArgs e) {
+
+			// double-buffer list view
+			var prop = typeof(ListView).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+			if (prop != null) prop.SetValue(this.livePreviewFields, true, null);
+
+			if (this.ShowUnusedFields) {
+				this.fieldVisibilityAll.Checked = true;
+			} else {
+				this.RemoveUnusedPreviewFields();
 			}
 
 			// poll the controller for its state
@@ -315,6 +329,17 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					}
 				}
 
+			}
+		}
+
+		private void FieldVisibility_CheckedChanged(object sender, EventArgs e) {
+			var showUnusedFieldsChange = this.fieldVisibilityAll.Checked;
+			if (this.ShowUnusedFields != showUnusedFieldsChange) {
+				this.ShowUnusedFields = showUnusedFieldsChange;
+				this.AddAllPreviewFields();
+				if (!this.ShowUnusedFields) {
+					this.RemoveUnusedPreviewFields();
+				}
 			}
 		}
 	}

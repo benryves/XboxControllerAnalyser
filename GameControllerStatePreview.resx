@@ -60,4 +60,8 @@
   <metadata name="updateTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="fieldVisibilityLabel.Text" xml:space="preserve">
+    <value>Controllers report which fields they support and by default this form will only show fields that the controller claims to have.
+To view all fields, including ones the controller does not claim to have, set the option below to "Show all fields".</value>
+  </data>
 </root>
