@@ -220,18 +220,16 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					};
 
 					var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-
-					for (int i = 0; i < 10; ++i) {
-						bool success = false;
-
-						try {
-							success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == data.Length;
-						} finally {
-							handle.Free();
+					try {
+						for (int i = 0; i < 10; ++i) {
+							if (this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == data.Length) {
+								break;
+							}
+							Thread.Sleep(100);
 						}
-						if (success) break;
 
-						Thread.Sleep(100);
+					} finally {
+						handle.Free();
 					}
 				}
 			}
