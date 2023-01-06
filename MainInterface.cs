@@ -287,7 +287,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 								CreateUsbDeviceInfoListViewItem("Interface Number", "0x" + descriptor.InterfaceID.ToString("X2")),
 								CreateUsbDeviceInfoListViewItem("Alternate Setting", "0x" + descriptor.AlternateID.ToString("X2")),
 								CreateUsbDeviceInfoListViewItem("Endpoint Count", "0x" + descriptor.EndpointCount.ToString("X2")),
-								CreateUsbDeviceInfoListViewItem("Interface Class", "0x" + ((int)descriptor.Class).ToString("X2"), descriptor.Class.ToString()),
+								CreateUsbDeviceInfoListViewItem("Interface Class", "0x" + ((int)descriptor.Class).ToString("X2"), descriptor.Class == (ClassCodeType)0x58 ? "Xbox" : descriptor.Class.ToString()),
 								CreateUsbDeviceInfoListViewItem("Interface Sub Class", "0x" + descriptor.SubClass.ToString("X2")),
 								CreateUsbDeviceInfoListViewItem("Interface Protocol", "0x" + descriptor.Protocol.ToString("X2")),
 								CreateUsbDeviceInfoListViewItem("Interface Index", "0x" + descriptor.StringIndex.ToString("X2")),
@@ -309,122 +309,125 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 							}
 						}
 
-						// GET_DESCRIPTOR
-						short maxInputReportSize = 0;
-						short maxOutputReportSize = 0;
-						XboxInputDevice.ControllerType xboxInputDeviceType = 0;
-						{
-							UsbSetupPacket setupPacket = new UsbSetupPacket {
-								RequestType = 0xC1,
-								Request = 6,
-								Value = 0x4200,
-								Index = interfaceInfo.Descriptor.InterfaceID,
-								Length = 1,
-							};
+						if (interfaceInfo.Descriptor.Class == (ClassCodeType)0x58) {
 
-							// Try to get the actual response length with an artificially shortened request
-							if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] getSizeResponse) && getSizeResponse[0] > 0) {
-								setupPacket.Length = getSizeResponse[0];
-							} else {
-								setupPacket.Length = 16;
-							}
-
-							if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response) && response.Length >= 16) {
-								this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID Descriptor"));
-
-								xboxInputDeviceType = (XboxInputDevice.ControllerType)response[4];
-								
-								string subtype = "";
-								switch (xboxInputDeviceType) {
-									case XboxInputDevice.ControllerType.GameController:
-										subtype = ((XboxInputDevice.GameControllerSubType)response[5]).ToString();
-										break;
-								}
-
-								this.usbDeviceInfo.Items.AddRange(new[]{
-									CreateUsbDeviceInfoListViewItem("Length", "0x" + response[0].ToString("X2"), response[0].ToString() + " bytes"),
-									CreateUsbDeviceInfoListViewItem("Descriptor Type", "0x" + response[1].ToString("X2")),
-									CreateUsbDeviceInfoListViewItem("BCD XID", "0x" + (response[2] | response[3] << 8).ToString("X4")),
-									CreateUsbDeviceInfoListViewItem("Type", "0x" + response[4].ToString("X2"), xboxInputDeviceType.ToString()),
-									CreateUsbDeviceInfoListViewItem("Sub Type", "0x" + response[5].ToString("X2"), subtype),
-									CreateUsbDeviceInfoListViewItem("Max Input Report Size", "0x" + (maxInputReportSize = response[6]).ToString("X2"), response[6].ToString() + " bytes"),
-									CreateUsbDeviceInfoListViewItem("Max Output Report Size", "0x" + (maxOutputReportSize = response[7]).ToString("X2"), response[7].ToString() + " bytes"),
-								});
-								for (int i = 0; i < 4; ++i) {
-									this.usbDeviceInfo.Items.Add(CreateUsbDeviceInfoListViewItem("Alternate ID " + i.ToString(), "0x" + (response[8 + i * 2 + 0] | response[8 + i * 2 + 1] << 8).ToString("X4")));
-								}
-							}
-						}
-
-						// GET_CAPABILITIES
-						for (int capabilityType = 0; capabilityType < 2; ++capabilityType) {
-
-							var maxReportSize = new[] { maxInputReportSize, maxOutputReportSize }[capabilityType];
-
-							if (maxReportSize > 0) {
-								
+							// GET_DESCRIPTOR
+							short maxInputReportSize = 0;
+							short maxOutputReportSize = 0;
+							XboxInputDevice.ControllerType xboxInputDeviceType = 0;
+							{
 								UsbSetupPacket setupPacket = new UsbSetupPacket {
 									RequestType = 0xC1,
-									Request = 1,
-									Value = (short)(new[] { 0x0100, 0x0200 }[capabilityType]),
+									Request = 6,
+									Value = 0x4200,
 									Index = interfaceInfo.Descriptor.InterfaceID,
-									Length = 2,
+									Length = 1,
 								};
 
 								// Try to get the actual response length with an artificially shortened request
-								if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] getSizeResponse) && getSizeResponse[1] > 0) {
-									setupPacket.Length = getSizeResponse[1];
+								if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] getSizeResponse) && getSizeResponse[0] > 0) {
+									setupPacket.Length = getSizeResponse[0];
 								} else {
-									setupPacket.Length = maxReportSize;
+									setupPacket.Length = 16;
 								}
 
-								if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
-									this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID " + new[] { "Input", "Output" }[capabilityType] + " Capabilities"));
-									this.usbDeviceInfo.Items.AddRange(new[]{
-										CreateUsbDeviceInfoListViewItem("Report ID", "0x" + response[0].ToString("X2")),
-										CreateUsbDeviceInfoListViewItem("Length", "0x" + response[1].ToString("X2"), response[1].ToString() + " bytes"),
-									});
+								if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response) && response.Length >= 16) {
+									this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID Descriptor"));
 
-									if (capabilityType == 0 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController && response.Length >= 20) {
-										var state = new XboxInputDevice.GameControllerInputState(response);
-										this.usbDeviceInfo.Items.AddRange(new[]{
-											CreateUsbDeviceInfoListViewItem("Digital Buttons", "0x" + ((byte)state.DigitalButtons).ToString("X2"), state.DigitalButtons.ToString()),
-											CreateUsbDeviceInfoListViewItem("Light Gun Flags", "0x" + ((byte)state.LightGunFlags).ToString("X2"), state.LightGunFlags.ToString()),
-											CreateUsbDeviceInfoListViewItem("A", "0x" + state.A.ToString("X2")),
-											CreateUsbDeviceInfoListViewItem("B", "0x" + state.B.ToString("X2")),
-											CreateUsbDeviceInfoListViewItem("X", "0x" + state.X.ToString("X2")),
-											CreateUsbDeviceInfoListViewItem("Y", "0x" + state.Y.ToString("X2")),
-											CreateUsbDeviceInfoListViewItem("Black", "0x" + state.Black.ToString("X2")),
-											CreateUsbDeviceInfoListViewItem("White", "0x" + state.White.ToString("X2")),
-											CreateUsbDeviceInfoListViewItem("Left Trigger", "0x" + state.LeftTrigger.ToString("X2")),
-											CreateUsbDeviceInfoListViewItem("Right Trigger", "0x" + state.RightTrigger.ToString("X2")),
-											CreateUsbDeviceInfoListViewItem("Left Stick X", "0x" + state.LeftStickX.ToString("X4")),
-											CreateUsbDeviceInfoListViewItem("Left Stick Y", "0x" + state.LeftStickY.ToString("X4")),
-											CreateUsbDeviceInfoListViewItem("Right Stick X", "0x" + state.RightStickX.ToString("X4")),
-											CreateUsbDeviceInfoListViewItem("Right Stick Y", "0x" + state.RightStickY.ToString("X4")),
-										});
-									} else if (capabilityType == 1 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController && response.Length >= 6) {
-										var state = new XboxInputDevice.GameControllerOutputState(response);
-										this.usbDeviceInfo.Items.AddRange(new[]{
-											CreateUsbDeviceInfoListViewItem("Left Actuator Strength", "0x" + state.LeftActuatorStrength.ToString("X4")),
-											CreateUsbDeviceInfoListViewItem("Right Actuator Strength", "0x" + state.RightActuatorStrength.ToString("X4")),
-										});
+									xboxInputDeviceType = (XboxInputDevice.ControllerType)response[4];
+
+									string subtype = "";
+									switch (xboxInputDeviceType) {
+										case XboxInputDevice.ControllerType.GameController:
+											subtype = ((XboxInputDevice.GameControllerSubType)response[5]).ToString();
+											break;
+									}
+
+									this.usbDeviceInfo.Items.AddRange(new[]{
+										CreateUsbDeviceInfoListViewItem("Length", "0x" + response[0].ToString("X2"), response[0].ToString() + " bytes"),
+										CreateUsbDeviceInfoListViewItem("Descriptor Type", "0x" + response[1].ToString("X2")),
+										CreateUsbDeviceInfoListViewItem("BCD XID", "0x" + (response[2] | response[3] << 8).ToString("X4")),
+										CreateUsbDeviceInfoListViewItem("Type", "0x" + response[4].ToString("X2"), xboxInputDeviceType.ToString()),
+										CreateUsbDeviceInfoListViewItem("Sub Type", "0x" + response[5].ToString("X2"), subtype),
+										CreateUsbDeviceInfoListViewItem("Max Input Report Size", "0x" + (maxInputReportSize = response[6]).ToString("X2"), response[6].ToString() + " bytes"),
+										CreateUsbDeviceInfoListViewItem("Max Output Report Size", "0x" + (maxOutputReportSize = response[7]).ToString("X2"), response[7].ToString() + " bytes"),
+									});
+									for (int i = 0; i < 4; ++i) {
+										this.usbDeviceInfo.Items.Add(CreateUsbDeviceInfoListViewItem("Alternate ID " + i.ToString(), "0x" + (response[8 + i * 2 + 0] | response[8 + i * 2 + 1] << 8).ToString("X4")));
+									}
+								}
+							}
+
+							// GET_CAPABILITIES
+							for (int capabilityType = 0; capabilityType < 2; ++capabilityType) {
+
+								var maxReportSize = new[] { maxInputReportSize, maxOutputReportSize }[capabilityType];
+
+								if (maxReportSize > 0) {
+
+									UsbSetupPacket setupPacket = new UsbSetupPacket {
+										RequestType = 0xC1,
+										Request = 1,
+										Value = (short)(new[] { 0x0100, 0x0200 }[capabilityType]),
+										Index = interfaceInfo.Descriptor.InterfaceID,
+										Length = 2,
+									};
+
+									// Try to get the actual response length with an artificially shortened request
+									if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] getSizeResponse) && getSizeResponse[1] > 0) {
+										setupPacket.Length = getSizeResponse[1];
 									} else {
-										for (int i = 2; i < response[1]; i += 4) {
-											var data = new List<string>();
-											for (int j = 0; j < 4; ++j) {
-												if (i + j < response[1]) {
-													data.Add("0x" + response[i + j].ToString("X2"));
+										setupPacket.Length = maxReportSize;
+									}
+
+									if (GetUsbDeviceControlTransferData(device, ref setupPacket, out byte[] response)) {
+										this.usbDeviceInfo.Groups.Add(new ListViewGroup("XID " + new[] { "Input", "Output" }[capabilityType] + " Capabilities"));
+										this.usbDeviceInfo.Items.AddRange(new[]{
+											CreateUsbDeviceInfoListViewItem("Report ID", "0x" + response[0].ToString("X2")),
+											CreateUsbDeviceInfoListViewItem("Length", "0x" + response[1].ToString("X2"), response[1].ToString() + " bytes"),
+										});
+
+										if (capabilityType == 0 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController && response.Length >= 20) {
+											var state = new XboxInputDevice.GameControllerInputState(response);
+											this.usbDeviceInfo.Items.AddRange(new[]{
+												CreateUsbDeviceInfoListViewItem("Digital Buttons", "0x" + ((byte)state.DigitalButtons).ToString("X2"), state.DigitalButtons.ToString()),
+												CreateUsbDeviceInfoListViewItem("Light Gun Flags", "0x" + ((byte)state.LightGunFlags).ToString("X2"), state.LightGunFlags.ToString()),
+												CreateUsbDeviceInfoListViewItem("A", "0x" + state.A.ToString("X2")),
+												CreateUsbDeviceInfoListViewItem("B", "0x" + state.B.ToString("X2")),
+												CreateUsbDeviceInfoListViewItem("X", "0x" + state.X.ToString("X2")),
+												CreateUsbDeviceInfoListViewItem("Y", "0x" + state.Y.ToString("X2")),
+												CreateUsbDeviceInfoListViewItem("Black", "0x" + state.Black.ToString("X2")),
+												CreateUsbDeviceInfoListViewItem("White", "0x" + state.White.ToString("X2")),
+												CreateUsbDeviceInfoListViewItem("Left Trigger", "0x" + state.LeftTrigger.ToString("X2")),
+												CreateUsbDeviceInfoListViewItem("Right Trigger", "0x" + state.RightTrigger.ToString("X2")),
+												CreateUsbDeviceInfoListViewItem("Left Stick X", "0x" + state.LeftStickX.ToString("X4")),
+												CreateUsbDeviceInfoListViewItem("Left Stick Y", "0x" + state.LeftStickY.ToString("X4")),
+												CreateUsbDeviceInfoListViewItem("Right Stick X", "0x" + state.RightStickX.ToString("X4")),
+												CreateUsbDeviceInfoListViewItem("Right Stick Y", "0x" + state.RightStickY.ToString("X4")),
+											});
+										} else if (capabilityType == 1 && xboxInputDeviceType == XboxInputDevice.ControllerType.GameController && response.Length >= 6) {
+											var state = new XboxInputDevice.GameControllerOutputState(response);
+											this.usbDeviceInfo.Items.AddRange(new[]{
+												CreateUsbDeviceInfoListViewItem("Left Actuator Strength", "0x" + state.LeftActuatorStrength.ToString("X4")),
+												CreateUsbDeviceInfoListViewItem("Right Actuator Strength", "0x" + state.RightActuatorStrength.ToString("X4")),
+											});
+										} else {
+											for (int i = 2; i < response[1]; i += 4) {
+												var data = new List<string>();
+												for (int j = 0; j < 4; ++j) {
+													if (i + j < response[1]) {
+														data.Add("0x" + response[i + j].ToString("X2"));
+													}
 												}
+												this.usbDeviceInfo.Items.Add(CreateUsbDeviceInfoListViewItem("Capabilities [0x" + i.ToString("X2") + "~0x" + Math.Min(i + 4, response[1]).ToString("X2") + "]", string.Join(" ", data.ToArray())));
 											}
-											this.usbDeviceInfo.Items.Add(CreateUsbDeviceInfoListViewItem("Capabilities [0x" + i.ToString("X2") + "~0x" + Math.Min(i + 4, response[1]).ToString("X2") + "]", string.Join(" ", data.ToArray())));
 										}
 									}
 								}
 							}
-						}
-						if (xboxInputDeviceType == XboxInputDevice.ControllerType.GameController) {
-							livePreviewMenu.Tag = device;
+							if (xboxInputDeviceType == XboxInputDevice.ControllerType.GameController) {
+								livePreviewMenu.Tag = device;
+							}
 						}
 					}
 				}
