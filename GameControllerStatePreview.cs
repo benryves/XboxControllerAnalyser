@@ -1,5 +1,6 @@
 ﻿using LibUsbDotNet;
 using LibUsbDotNet.Main;
+using Microsoft.VisualBasic.Devices;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,11 +13,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.AxHost;
 
 namespace BeeDevelopment.XboxControllerAnalyser {
 	public partial class GameControllerStatePreview : Form {
 
 		public UsbDevice? Device { get; set; }
+		public bool ShowUnusedFields { get; set; }
 
 		ListViewItem.ListViewSubItem dpad;
 		ListViewItem.ListViewSubItem start;
@@ -103,53 +106,85 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			if (prop != null) prop.SetValue(this.livePreviewFields, true, null);
 
 			// get capabilities to hide unused fields
-			if (this.Device != null) {
+			if (this.Device != null && !this.ShowUnusedFields) {
+				
+				// input
+				{
+					UsbSetupPacket setupPacket = new UsbSetupPacket {
+						RequestType = 0xC1,
+						Request = 1,
+						Value = 0x0100,
+						Index = 0,
+						Length = 20,
+					};
 
-				UsbSetupPacket setupPacket = new UsbSetupPacket {
-					RequestType = 0xC1,
-					Request = 1,
-					Value = 0x0100,
-					Index = 0,
-					Length = 20,
-				};
+					var response = new byte[setupPacket.Length];
+					var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
+					bool success = false;
 
-				var response = new byte[setupPacket.Length];
-				var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
-				bool success = false;
+					try {
+						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == response.Length;
+					} finally {
+						handle.Free();
+					}
 
-				try {
-					int length;
-					success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out length) && length == response.Length;
-				} finally {
-					handle.Free();
+					if (success) {
+						var state = new XboxInputDevice.GameControllerInputState(response);
+
+						if ((state.DigitalButtons & (XboxInputDevice.GameControllerDigitalButtons.Up | XboxInputDevice.GameControllerDigitalButtons.Down | XboxInputDevice.GameControllerDigitalButtons.Left | XboxInputDevice.GameControllerDigitalButtons.Right)) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.dpad.Tag as ListViewItem);
+						if ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Start) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.start.Tag as ListViewItem);
+						if ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Back) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.back.Tag as ListViewItem);
+						if ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.LeftStick) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.leftStickButton.Tag as ListViewItem);
+						if ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.RightStick) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.rightStickButton.Tag as ListViewItem);
+
+						if ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.LightVisible) == XboxInputDevice.GameControllerLightGunFlags.None) this.livePreviewFields.Items.Remove(this.lightGunLightVisible.Tag as ListViewItem);
+						if ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown1) == XboxInputDevice.GameControllerLightGunFlags.None) this.livePreviewFields.Items.Remove(this.lightGunUnknown1.Tag as ListViewItem);
+						if ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown2) == XboxInputDevice.GameControllerLightGunFlags.None) this.livePreviewFields.Items.Remove(this.lightGunUnknown2.Tag as ListViewItem);
+
+						if (state.A == 0) this.livePreviewFields.Items.Remove(this.a.Tag as ListViewItem);
+						if (state.B == 0) this.livePreviewFields.Items.Remove(this.b.Tag as ListViewItem);
+						if (state.X == 0) this.livePreviewFields.Items.Remove(this.x.Tag as ListViewItem);
+						if (state.Y == 0) this.livePreviewFields.Items.Remove(this.y.Tag as ListViewItem);
+						if (state.Black == 0) this.livePreviewFields.Items.Remove(this.black.Tag as ListViewItem);
+						if (state.White == 0) this.livePreviewFields.Items.Remove(this.white.Tag as ListViewItem);
+
+						if (state.LeftTrigger == 0) this.livePreviewFields.Items.Remove(this.leftTrigger.Tag as ListViewItem);
+						if (state.RightTrigger == 0) this.livePreviewFields.Items.Remove(this.rightTrigger.Tag as ListViewItem);
+
+						if (state.LeftStickX == 0 && state.LeftStickY == 0) this.livePreviewFields.Items.Remove(this.leftStick.Tag as ListViewItem);
+						if (state.RightStickX == 0 && state.RightStickY == 0) this.livePreviewFields.Items.Remove(this.rightStick.Tag as ListViewItem);
+
+					}
 				}
 
-				if (success) {
-					var state = new XboxInputDevice.GameControllerInputState(response);
+				// output
+				{
+					UsbSetupPacket setupPacket = new UsbSetupPacket {
+						RequestType = 0xC1,
+						Request = 1,
+						Value = 0x0200,
+						Index = 0,
+						Length = 6,
+					};
 
-					if ((state.DigitalButtons & (XboxInputDevice.GameControllerDigitalButtons.Up | XboxInputDevice.GameControllerDigitalButtons.Down | XboxInputDevice.GameControllerDigitalButtons.Left | XboxInputDevice.GameControllerDigitalButtons.Right)) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.dpad.Tag as ListViewItem);
-					if ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Start) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.start.Tag as ListViewItem);
-					if ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Back) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.back.Tag as ListViewItem);
-					if ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.LeftStick) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.leftStickButton.Tag as ListViewItem);
-					if ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.RightStick) == XboxInputDevice.GameControllerDigitalButtons.None) this.livePreviewFields.Items.Remove(this.rightStickButton.Tag as ListViewItem);
+					var response = new byte[setupPacket.Length];
+					var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
+					bool success = false;
 
-					if ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.LightVisible) == XboxInputDevice.GameControllerLightGunFlags.None) this.livePreviewFields.Items.Remove(this.lightGunLightVisible.Tag as ListViewItem);
-					if ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown1) == XboxInputDevice.GameControllerLightGunFlags.None) this.livePreviewFields.Items.Remove(this.lightGunUnknown1.Tag as ListViewItem);
-					if ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown2) == XboxInputDevice.GameControllerLightGunFlags.None) this.livePreviewFields.Items.Remove(this.lightGunUnknown2.Tag as ListViewItem);
+					try {
+						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == response.Length;
+					} finally {
+						handle.Free();
+					}
 
-					if (state.A == 0) this.livePreviewFields.Items.Remove(this.a.Tag as ListViewItem);
-					if (state.B == 0) this.livePreviewFields.Items.Remove(this.b.Tag as ListViewItem);
-					if (state.X == 0) this.livePreviewFields.Items.Remove(this.x.Tag as ListViewItem);
-					if (state.Y == 0) this.livePreviewFields.Items.Remove(this.y.Tag as ListViewItem);
-					if (state.Black == 0) this.livePreviewFields.Items.Remove(this.black.Tag as ListViewItem);
-					if (state.White == 0) this.livePreviewFields.Items.Remove(this.white.Tag as ListViewItem);
-
-					if (state.LeftTrigger == 0) this.livePreviewFields.Items.Remove(this.leftTrigger.Tag as ListViewItem);
-					if (state.RightTrigger == 0) this.livePreviewFields.Items.Remove(this.rightTrigger.Tag as ListViewItem);
-
-					if (state.LeftStickX == 0 && state.LeftStickY == 0) this.livePreviewFields.Items.Remove(this.leftStick.Tag as ListViewItem);
-					if (state.RightStickX == 0 && state.RightStickY == 0) this.livePreviewFields.Items.Remove(this.rightStick.Tag as ListViewItem);
-
+					if (success) {
+						var state = new XboxInputDevice.GameControllerOutputState(response);
+						this.leftActuatorStrength.Enabled = this.leftActuatorLabel.Enabled = state.LeftActuatorStrength != 0;
+						this.rightActuatorStrength.Enabled = this.rightActuatorLabel.Enabled = state.RightActuatorStrength != 0;
+					} else {
+						this.leftActuatorStrength.Enabled = this.leftActuatorLabel.Enabled = false;
+						this.rightActuatorStrength.Enabled = this.rightActuatorLabel.Enabled = false;
+					}
 				}
 			}
 
@@ -161,58 +196,123 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		private void GameControllerStatePreview_FormClosing(object sender, FormClosingEventArgs e) {
 			this.updateTimer.Stop();
+
+			if (this.Device != null) {
+
+				// try to switch off the motors
+				if (this.leftActuatorStrength.Enabled || this.rightActuatorStrength.Enabled) {
+
+					var report = new XboxInputDevice.GameControllerOutputState();
+					report.LeftActuatorStrength = 0;
+					report.RightActuatorStrength = 0;
+
+					var data = report.GetBytes();
+
+					UsbSetupPacket setupPacket = new UsbSetupPacket {
+						RequestType = 0x21,
+						Request = 9,
+						Value = 0x0200,
+						Index = 0,
+						Length = (short)data.Length,
+					};
+
+					var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+
+					for (int i = 0; i < 10; ++i) {
+						bool success = false;
+
+						try {
+							success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == data.Length;
+						} finally {
+							handle.Free();
+						}
+						if (success) break;
+						
+						Thread.Sleep(100);
+					}
+				}
+			}
 		}
 
 		private void UpdateTimer_Tick(object sender, EventArgs e) {
 			if (this.Device != null) {
-				
-				// GET_REPORT
-				UsbSetupPacket setupPacket = new UsbSetupPacket {
-					RequestType = 0xA1,
-					Request = 1,
-					Value = 0x0100,
-					Index = 0,
-					Length = 20,
-				};
 
-				var response = new byte[setupPacket.Length];
-				var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
-				bool success = false;
+				{
+					// GET_REPORT
+					UsbSetupPacket setupPacket = new UsbSetupPacket {
+						RequestType = 0xA1,
+						Request = 1,
+						Value = 0x0100,
+						Index = 0,
+						Length = 20,
+					};
 
-				try {
-					int length;
-					success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out length) && length == response.Length;
-				} finally {
-					handle.Free();
+					var response = new byte[setupPacket.Length];
+					var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
+					bool success = false;
+
+					try {
+						int length;
+						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out length) && length == response.Length;
+					} finally {
+						handle.Free();
+					}
+
+					if (success) {
+
+						var state = new XboxInputDevice.GameControllerInputState(response);
+
+						this.dpad.Text = (state.DigitalButtons & (XboxInputDevice.GameControllerDigitalButtons.Up | XboxInputDevice.GameControllerDigitalButtons.Down | XboxInputDevice.GameControllerDigitalButtons.Left | XboxInputDevice.GameControllerDigitalButtons.Right)).ToString();
+						this.start.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Start) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+						this.back.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Back) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+						this.leftStickButton.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.LeftStick) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+						this.rightStickButton.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.RightStick) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+
+						this.lightGunLightVisible.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.LightVisible) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
+						this.lightGunUnknown1.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown1) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
+						this.lightGunUnknown2.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown2) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
+
+						this.a.Text = "0x" + state.A.ToString("X2");
+						this.b.Text = "0x" + state.B.ToString("X2");
+						this.x.Text = "0x" + state.X.ToString("X2");
+						this.y.Text = "0x" + state.Y.ToString("X2");
+						this.black.Text = "0x" + state.Black.ToString("X2");
+						this.white.Text = "0x" + state.White.ToString("X2");
+
+						this.leftTrigger.Text = "0x" + state.LeftTrigger.ToString("X2");
+						this.rightTrigger.Text = "0x" + state.RightTrigger.ToString("X2");
+
+						this.leftStick.Text = string.Format("(0x{0:X4}, 0x{1:X4})", state.LeftStickX, state.LeftStickY);
+						this.rightStick.Text = string.Format("(0x{0:X4}, 0x{1:X4})", state.RightStickX, state.RightStickY);
+
+					}
 				}
 
-				if (success) {
-					
-					var state = new XboxInputDevice.GameControllerInputState(response);
-					
-					this.dpad.Text = (state.DigitalButtons & (XboxInputDevice.GameControllerDigitalButtons.Up | XboxInputDevice.GameControllerDigitalButtons.Down | XboxInputDevice.GameControllerDigitalButtons.Left | XboxInputDevice.GameControllerDigitalButtons.Right)).ToString();
-					this.start.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Start) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
-					this.back.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Back) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
-					this.leftStickButton.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.LeftStick) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
-					this.rightStickButton.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.RightStick) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+				if (this.leftActuatorStrength.Enabled || this.rightActuatorStrength.Enabled) {
 
-					this.lightGunLightVisible.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.LightVisible) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
-					this.lightGunUnknown1.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown1) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
-					this.lightGunUnknown2.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown2) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
-					
-					this.a.Text = "0x" + state.A.ToString("X2");
-					this.b.Text = "0x" + state.B.ToString("X2");
-					this.x.Text = "0x" + state.X.ToString("X2");
-					this.y.Text = "0x" + state.Y.ToString("X2");
-					this.black.Text = "0x" + state.Black.ToString("X2");
-					this.white.Text = "0x" + state.White.ToString("X2");
+					var report = new XboxInputDevice.GameControllerOutputState();
 
-					this.leftTrigger.Text = "0x" + state.LeftTrigger.ToString("X2");
-					this.rightTrigger.Text = "0x" + state.RightTrigger.ToString("X2");
+					report.LeftActuatorStrength = (ushort)this.leftActuatorStrength.Value;
+					report.RightActuatorStrength = (ushort)this.rightActuatorStrength.Value;
 
-					this.leftStick.Text = string.Format("(0x{0:X4}, 0x{1:X4})", state.LeftStickX, state.LeftStickY);
-					this.rightStick.Text = string.Format("(0x{0:X4}, 0x{1:X4})", state.RightStickX, state.RightStickY);
+					var data = report.GetBytes();
 
+					UsbSetupPacket setupPacket = new UsbSetupPacket {
+						RequestType = 0x21,
+						Request = 9,
+						Value = 0x0200,
+						Index = 0,
+						Length = (short)data.Length,
+					};
+
+					var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+					bool success = false;
+
+					try {
+						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == data.Length;
+					} finally {
+						handle.Free();
+					}
 				}
 
 			}

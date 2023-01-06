@@ -133,7 +133,7 @@
 			// 
 			this.saveMenu.Name = "saveMenu";
 			this.saveMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-			this.saveMenu.Size = new System.Drawing.Size(180, 22);
+			this.saveMenu.Size = new System.Drawing.Size(147, 22);
 			this.saveMenu.Text = "&Save...";
 			this.saveMenu.Click += new System.EventHandler(this.SaveMenu_Click);
 			// 
@@ -141,7 +141,7 @@
 			// 
 			this.exitMenu.Name = "exitMenu";
 			this.exitMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-			this.exitMenu.Size = new System.Drawing.Size(180, 22);
+			this.exitMenu.Size = new System.Drawing.Size(147, 22);
 			this.exitMenu.Text = "E&xit";
 			this.exitMenu.Click += new System.EventHandler(this.ExitMenu_Click);
 			// 
@@ -159,7 +159,7 @@
 			// 
 			this.copyMenu.Name = "copyMenu";
 			this.copyMenu.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-			this.copyMenu.Size = new System.Drawing.Size(180, 22);
+			this.copyMenu.Size = new System.Drawing.Size(144, 22);
 			this.copyMenu.Text = "&Copy";
 			this.copyMenu.Click += new System.EventHandler(this.CopyMenu_Click);
 			// 
@@ -178,14 +178,14 @@
 			// 
 			this.refreshMenu.Name = "refreshMenu";
 			this.refreshMenu.ShortcutKeys = System.Windows.Forms.Keys.F5;
-			this.refreshMenu.Size = new System.Drawing.Size(148, 22);
+			this.refreshMenu.Size = new System.Drawing.Size(180, 22);
 			this.refreshMenu.Text = "&Refresh";
 			this.refreshMenu.Click += new System.EventHandler(this.RefreshMenu_Click);
 			// 
 			// livePreviewMenu
 			// 
 			this.livePreviewMenu.Name = "livePreviewMenu";
-			this.livePreviewMenu.Size = new System.Drawing.Size(148, 22);
+			this.livePreviewMenu.Size = new System.Drawing.Size(180, 22);
 			this.livePreviewMenu.Text = "Live Preview...";
 			this.livePreviewMenu.Click += new System.EventHandler(this.LivePreviewMenu_Click);
 			// 
@@ -200,6 +200,7 @@
 			this.ClientSize = new System.Drawing.Size(944, 461);
 			this.Controls.Add(this.usbDeviceSplit);
 			this.Controls.Add(this.mainMenuStrip);
+			this.KeyPreview = true;
 			this.MainMenuStrip = this.mainMenuStrip;
 			this.Name = "MainInterface";
 			this.Load += new System.EventHandler(this.MainInterface_Load);

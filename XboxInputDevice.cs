@@ -88,6 +88,17 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 				this.RightActuatorStrength = (ushort)(report[4] | (report[5] << 8));
 			}
 
+			public byte[] GetBytes() {
+				var report = new byte[6];
+				report[0] = 0;
+				report[1] = 6;
+				report[2] = (byte)this.LeftActuatorStrength;
+				report[3] = (byte)(this.LeftActuatorStrength >> 8);
+				report[4] = (byte)this.RightActuatorStrength;
+				report[5] = (byte)(this.RightActuatorStrength >> 8);
+				return report;
+			}
+
 		}
 
 	}
