@@ -4,10 +4,7 @@ using LibUsbDotNet.Info;
 using LibUsbDotNet.LibUsb;
 using LibUsbDotNet.Main;
 using LibUsbDotNet.WinUsb;
-using System.Configuration;
 using System.Data;
-using System.Diagnostics;
-using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -79,14 +76,14 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 		}
 
 		private void LivePreviewMenu_Click(object sender, EventArgs e) {
-			
+
 			UsbDevice? device = null;
 
-			if (livePreviewMenu.Tag is LibUsbDevice) {
-				device = (LibUsbDevice)livePreviewMenu.Tag;
+			if (livePreviewMenu.Tag is LibUsbDevice libUsbDevice) {
+				device = libUsbDevice;
 			}
-			if (livePreviewMenu.Tag is WinUsbDevice) {
-				device = (WinUsbDevice)livePreviewMenu.Tag;
+			if (livePreviewMenu.Tag is WinUsbDevice winUsbDevice) {
+				device = winUsbDevice;
 			}
 
 			if (device != null) {
@@ -94,7 +91,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					MessageBox.Show(this, "Could not open device for live preview.", "Live Preview", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				} else {
 					// GET_DESCRIPTOR
-					UsbSetupPacket setupPacket = new UsbSetupPacket {
+					var setupPacket = new UsbSetupPacket {
 						RequestType = 0xC1,
 						Request = 6,
 						Value = 0x4200,
@@ -114,7 +111,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 								MessageBox.Show(this, "Unsupported device type 0x" + response[4].ToString("X2") + " for live preview.", "Live Preview", MessageBoxButtons.OK, MessageBoxIcon.Information);
 								break;
 						}
-						
+
 					}
 					device.Close();
 				}
@@ -148,13 +145,13 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			if (LibUsbDevice.AllLibUsbDevices.Count > 0) {
 				var node = new TreeNode("libusb Devices");
 				this.usbDeviceTree.Nodes.Add(node);
-				foreach (LibUsbRegistry device in LibUsbDevice.AllLibUsbDevices) {
+				foreach (LibUsbRegistry device in UsbDevice.AllLibUsbDevices.Cast<LibUsbRegistry>()) {
 					node.Nodes.Add(new TreeNode {
 						Tag = device,
 						Text = device.Name,
 					});
 					if (device.SymbolicName == previouslySelectedDevice) {
-						selectedNode = node.Nodes[node.Nodes.Count - 1];
+						selectedNode = node.Nodes[^1];
 					}
 				}
 			}
@@ -163,13 +160,13 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			if (LibUsbDevice.AllWinUsbDevices.Count > 0) {
 				var node = new TreeNode("WinUSB Devices");
 				this.usbDeviceTree.Nodes.Add(node);
-				foreach (WinUsbRegistry device in LibUsbDevice.AllWinUsbDevices) {
+				foreach (WinUsbRegistry device in UsbDevice.AllWinUsbDevices.Cast<WinUsbRegistry>()) {
 					node.Nodes.Add(new TreeNode {
 						Tag = device,
 						Text = device.Name,
 					});
 					if (device.SymbolicName == previouslySelectedDevice) {
-						selectedNode = node.Nodes[node.Nodes.Count - 1];
+						selectedNode = node.Nodes[^1];
 					}
 				}
 			}
@@ -192,7 +189,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		private ListViewItem CreateUsbDeviceInfoListViewItem(string field, string value, string description = "", ListViewGroup? group = null) {
 			if (group == null && this.usbDeviceInfo.Groups.Count > 0) {
-				group = this.usbDeviceInfo.Groups[this.usbDeviceInfo.Groups.Count - 1];
+				group = this.usbDeviceInfo.Groups[^1];
 			}
 			var fieldItem = new ListViewItem {
 				Text = field,
@@ -213,15 +210,14 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			this.livePreviewMenu.Tag = null;
 		}
 
-		private bool GetUsbDeviceControlTransferData(UsbDevice device, ref UsbSetupPacket setupPacket, out byte[] response) {
-			
+		static bool GetUsbDeviceControlTransferData(UsbDevice device, ref UsbSetupPacket setupPacket, out byte[] response) {
+
 			response = new byte[setupPacket.Length];
 			var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
 			bool success = false;
-			
+
 			try {
-				int length;
-				success = device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out length) && length == response.Length;
+				success = device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == response.Length;
 			} finally {
 				handle.Free();
 			}
@@ -230,7 +226,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 		}
 
 		private void ShowUsbDeviceInfo(UsbDevice device) {
-			
+
 			// Start from empty
 			this.ClearUsbDeviceInfo();
 			livePreviewMenu.Tag = null;
@@ -316,7 +312,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 							short maxOutputReportSize = 0;
 							XboxInputDevice.ControllerType xboxInputDeviceType = 0;
 							{
-								UsbSetupPacket setupPacket = new UsbSetupPacket {
+								var setupPacket = new UsbSetupPacket {
 									RequestType = 0xC1,
 									Request = 6,
 									Value = 0x4200,
@@ -365,7 +361,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 								if (maxReportSize > 0) {
 
-									UsbSetupPacket setupPacket = new UsbSetupPacket {
+									var setupPacket = new UsbSetupPacket {
 										RequestType = 0xC1,
 										Request = 1,
 										Value = (short)(new[] { 0x0100, 0x0200 }[capabilityType]),
@@ -452,7 +448,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 						this.ShowUsbDeviceInfo(device);
 						device.Close();
 					} else {
-						MessageBox.Show(this, "Could not open WinUSB device '"  + e.Node.Text + "'.", e.Node.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						MessageBox.Show(this, "Could not open WinUSB device '" + e.Node.Text + "'.", e.Node.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
 			}
@@ -463,8 +459,8 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 		}
 
 		private string ConvertUsbDeviceInfoToText() {
-			
-			StringBuilder result = new StringBuilder(1024);
+
+			var result = new StringBuilder(1024);
 
 			foreach (ListViewGroup group in this.usbDeviceInfo.Groups) {
 				result.AppendLine("========== " + group.ToString() + " ==========");

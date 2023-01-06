@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BeeDevelopment.XboxControllerAnalyser {
+﻿namespace BeeDevelopment.XboxControllerAnalyser {
 
 	internal class XboxInputDevice {
 
@@ -71,7 +65,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 				this.LeftTrigger = report[10];
 				this.RightTrigger = report[11];
 				this.LeftStickX = (ushort)(report[12] | (report[13] << 8));
-				this.LeftStickY	= (ushort)(report[14] | (report[15] << 8));
+				this.LeftStickY = (ushort)(report[14] | (report[15] << 8));
 				this.RightStickX = (ushort)(report[16] | (report[17] << 8));
 				this.RightStickY = (ushort)(report[18] | (report[19] << 8));
 			}

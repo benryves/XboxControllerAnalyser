@@ -1,20 +1,8 @@
 ﻿using LibUsbDotNet;
 using LibUsbDotNet.Main;
-using Microsoft.VisualBasic.Devices;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Eventing.Reader;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static System.Windows.Forms.AxHost;
 
 namespace BeeDevelopment.XboxControllerAnalyser {
 	public partial class GameControllerStatePreview : Form {
@@ -45,9 +33,9 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 		[AllowNull] ListViewItem.ListViewSubItem rightStick;
 
 		private ListViewItem.ListViewSubItem CreateLivePreviewListViewItem(string field) {
-			
-			var group = this.livePreviewFields.Groups[this.livePreviewFields.Groups.Count - 1];
-			
+
+			var group = this.livePreviewFields.Groups[^1];
+
 			var fieldItem = new ListViewItem {
 				Text = field,
 				Group = group,
@@ -106,7 +94,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 				// input
 				{
-					UsbSetupPacket setupPacket = new UsbSetupPacket {
+					var setupPacket = new UsbSetupPacket {
 						RequestType = 0xC1,
 						Request = 1,
 						Value = 0x0100,
@@ -155,7 +143,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 				// output
 				{
-					UsbSetupPacket setupPacket = new UsbSetupPacket {
+					var setupPacket = new UsbSetupPacket {
 						RequestType = 0xC1,
 						Request = 1,
 						Value = 0x0200,
@@ -194,7 +182,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 			// double-buffer list view
 			var prop = typeof(ListView).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
-			if (prop != null) prop.SetValue(this.livePreviewFields, true, null);
+			prop?.SetValue(this.livePreviewFields, true, null);
 
 			if (this.ShowUnusedFields) {
 				this.fieldVisibilityAll.Checked = true;
@@ -216,13 +204,14 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 				// try to switch off the motors
 				if (this.leftActuatorStrength.Enabled || this.rightActuatorStrength.Enabled) {
 
-					var report = new XboxInputDevice.GameControllerOutputState();
-					report.LeftActuatorStrength = 0;
-					report.RightActuatorStrength = 0;
+					var report = new XboxInputDevice.GameControllerOutputState {
+						LeftActuatorStrength = 0,
+						RightActuatorStrength = 0
+					};
 
 					var data = report.GetBytes();
 
-					UsbSetupPacket setupPacket = new UsbSetupPacket {
+					var setupPacket = new UsbSetupPacket {
 						RequestType = 0x21,
 						Request = 9,
 						Value = 0x0200,
@@ -241,7 +230,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 							handle.Free();
 						}
 						if (success) break;
-						
+
 						Thread.Sleep(100);
 					}
 				}
@@ -253,7 +242,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 				{
 					// GET_REPORT
-					UsbSetupPacket setupPacket = new UsbSetupPacket {
+					var setupPacket = new UsbSetupPacket {
 						RequestType = 0xA1,
 						Request = 1,
 						Value = 0x0100,
@@ -266,8 +255,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					bool success = false;
 
 					try {
-						int length;
-						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out length) && length == response.Length;
+						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == response.Length;
 					} finally {
 						handle.Free();
 					}
@@ -304,14 +292,14 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 				if (this.leftActuatorStrength.Enabled || this.rightActuatorStrength.Enabled) {
 
-					var report = new XboxInputDevice.GameControllerOutputState();
-
-					report.LeftActuatorStrength = (ushort)this.leftActuatorStrength.Value;
-					report.RightActuatorStrength = (ushort)this.rightActuatorStrength.Value;
+					var report = new XboxInputDevice.GameControllerOutputState {
+						LeftActuatorStrength = (ushort)this.leftActuatorStrength.Value,
+						RightActuatorStrength = (ushort)this.rightActuatorStrength.Value
+					};
 
 					var data = report.GetBytes();
 
-					UsbSetupPacket setupPacket = new UsbSetupPacket {
+					var setupPacket = new UsbSetupPacket {
 						RequestType = 0x21,
 						Request = 9,
 						Value = 0x0200,
@@ -320,10 +308,9 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					};
 
 					var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-					bool success = false;
 
 					try {
-						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == data.Length;
+						this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length);
 					} finally {
 						handle.Free();
 					}
