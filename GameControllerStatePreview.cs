@@ -258,7 +258,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 						handle.Free();
 					}
 
-					if (success) {
+					if (this.inputGroup.Enabled = success) {
 
 						var state = new XboxInputDevice.GameControllerInputState(response);
 
@@ -308,7 +308,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 
 					try {
-						this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length);
+						this.outputGroup.Enabled = (this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == setupPacket.Length);
 					} finally {
 						handle.Free();
 					}
