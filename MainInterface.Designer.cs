@@ -32,12 +32,15 @@
 			this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
 			this.fileMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.fileSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.exitMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.editMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.viewMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.refreshMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.viewSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.livePreviewMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.inputRecorderMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
 			((System.ComponentModel.ISupportInitialize)(this.usbDeviceSplit)).BeginInit();
 			this.usbDeviceSplit.Panel1.SuspendLayout();
@@ -122,6 +125,7 @@
 			// 
 			this.fileMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveMenu,
+            this.fileSeparator,
             this.exitMenu});
 			this.fileMenu.Name = "fileMenu";
 			this.fileMenu.Size = new System.Drawing.Size(37, 20);
@@ -136,6 +140,11 @@
 			this.saveMenu.Size = new System.Drawing.Size(147, 22);
 			this.saveMenu.Text = "&Save...";
 			this.saveMenu.Click += new System.EventHandler(this.SaveMenu_Click);
+			// 
+			// fileSeparator
+			// 
+			this.fileSeparator.Name = "fileSeparator";
+			this.fileSeparator.Size = new System.Drawing.Size(144, 6);
 			// 
 			// exitMenu
 			// 
@@ -167,7 +176,9 @@
 			// 
 			this.viewMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.refreshMenu,
-            this.livePreviewMenu});
+            this.viewSeparator,
+            this.livePreviewMenu,
+            this.inputRecorderMenu});
 			this.viewMenu.Name = "viewMenu";
 			this.viewMenu.Size = new System.Drawing.Size(44, 20);
 			this.viewMenu.Text = "&View";
@@ -182,12 +193,24 @@
 			this.refreshMenu.Text = "&Refresh";
 			this.refreshMenu.Click += new System.EventHandler(this.RefreshMenu_Click);
 			// 
+			// viewSeparator
+			// 
+			this.viewSeparator.Name = "viewSeparator";
+			this.viewSeparator.Size = new System.Drawing.Size(177, 6);
+			// 
 			// livePreviewMenu
 			// 
 			this.livePreviewMenu.Name = "livePreviewMenu";
 			this.livePreviewMenu.Size = new System.Drawing.Size(180, 22);
-			this.livePreviewMenu.Text = "Live Preview...";
+			this.livePreviewMenu.Text = "Live &Preview...";
 			this.livePreviewMenu.Click += new System.EventHandler(this.LivePreviewMenu_Click);
+			// 
+			// inputRecorderMenu
+			// 
+			this.inputRecorderMenu.Name = "inputRecorderMenu";
+			this.inputRecorderMenu.Size = new System.Drawing.Size(180, 22);
+			this.inputRecorderMenu.Text = "&Input Recorder...";
+			this.inputRecorderMenu.Click += new System.EventHandler(this.InputRecorderMenu_Click);
 			// 
 			// saveFileDialog
 			// 
@@ -233,5 +256,8 @@
 		private ToolStripMenuItem saveMenu;
 		private SaveFileDialog saveFileDialog;
 		private ToolStripMenuItem livePreviewMenu;
+		private ToolStripMenuItem inputRecorderMenu;
+		private ToolStripSeparator fileSeparator;
+		private ToolStripSeparator viewSeparator;
 	}
 }

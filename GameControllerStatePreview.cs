@@ -34,15 +34,23 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		private ListViewItem.ListViewSubItem CreateLivePreviewListViewItem(string field) {
 
+			Font monospaceFont = this.Font;
+			MainInterface? mainInterface = this.Owner as MainInterface;
+			if (mainInterface != null) {
+				monospaceFont = mainInterface.MonospaceFont;
+			}
+
 			var group = this.livePreviewFields.Groups[^1];
 
 			var fieldItem = new ListViewItem {
 				Text = field,
 				Group = group,
+				UseItemStyleForSubItems = false,
 			};
 
 			var subItem = new ListViewItem.ListViewSubItem {
-				Tag = fieldItem
+				Tag = fieldItem,
+				Font = monospaceFont,
 			};
 
 			fieldItem.SubItems.Add(subItem);
@@ -175,10 +183,11 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		public GameControllerStatePreview() {
 			InitializeComponent();
-			this.AddAllPreviewFields();
 		}
 
 		private void GameControllerStatePreview_Load(object sender, EventArgs e) {
+
+			this.AddAllPreviewFields();
 
 			// double-buffer list view
 			var prop = typeof(ListView).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);

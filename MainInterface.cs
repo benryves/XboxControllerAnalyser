@@ -11,6 +11,8 @@ using System.Text;
 namespace BeeDevelopment.XboxControllerAnalyser {
 	public partial class MainInterface : Form {
 
+		internal Font MonospaceFont = new Font("Courier New", 10f);
+
 		public MainInterface() {
 			InitializeComponent();
 			this.Text = Application.ProductName;
@@ -47,7 +49,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 		// Edit menu
 
 		private void EditMenu_DropDownOpening(object sender, EventArgs e) {
-			this.saveMenu.Enabled = this.usbDeviceInfo.Items.Count > 0;
+			this.copyMenu.Enabled = this.usbDeviceInfo.Items.Count > 0;
 		}
 
 		private void EditMenu_DropDownClosed(object sender, EventArgs e) {
@@ -57,7 +59,10 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		private void CopyMenu_Click(object sender, EventArgs e) {
 			if (this.usbDeviceInfo.Items.Count > 0) {
-				Clipboard.SetText(ConvertUsbDeviceInfoToText());
+				var text = ConvertUsbDeviceInfoToText();
+				if (!string.IsNullOrEmpty(text)) {
+					Clipboard.SetText(text);
+				}
 			}
 		}
 
@@ -65,10 +70,12 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		private void ViewMenu_DropDownOpening(object sender, EventArgs e) {
 			this.livePreviewMenu.Enabled = this.livePreviewMenu.Tag is UsbDevice;
+			this.inputRecorderMenu.Enabled = this.inputRecorderMenu.Tag is UsbDevice;
 		}
 
 		private void ViewMenu_DropDownClosed(object sender, EventArgs e) {
 			this.livePreviewMenu.Enabled = true;
+			this.inputRecorderMenu.Enabled = true;
 		}
 
 		private void RefreshMenu_Click(object sender, EventArgs e) {
@@ -194,8 +201,12 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			var fieldItem = new ListViewItem {
 				Text = field,
 				Group = group,
+				UseItemStyleForSubItems = false,
 			};
-			fieldItem.SubItems.Add(value);
+			fieldItem.SubItems.Add(new ListViewItem.ListViewSubItem {
+				Text = value,
+				Font = this.MonospaceFont,
+			});
 			if (description != "") {
 				fieldItem.SubItems.Add(description);
 			}
@@ -206,8 +217,9 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			// Start from an empty data list
 			this.usbDeviceInfo.Items.Clear();
 			this.usbDeviceInfo.Groups.Clear();
-			// Forget about live previewing too!
+			// Forget about live previewing and input recording too!
 			this.livePreviewMenu.Tag = null;
+			this.inputRecorderMenu.Tag = null;
 		}
 
 		static bool GetUsbDeviceControlTransferData(UsbDevice device, ref UsbSetupPacket setupPacket, out byte[] response) {
@@ -229,7 +241,8 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 			// Start from empty
 			this.ClearUsbDeviceInfo();
-			livePreviewMenu.Tag = null;
+			this.livePreviewMenu.Tag = null;
+			this.inputRecorderMenu.Tag = null;
 
 			// Only show device info if it's open
 			if (device.IsOpen) {
@@ -422,8 +435,9 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 								}
 							}
 							if (xboxInputDeviceType == XboxInputDevice.ControllerType.GameController) {
-								livePreviewMenu.Tag = device;
+								this.livePreviewMenu.Tag = device;
 							}
+							this.inputRecorderMenu.Tag = device;
 						}
 					}
 				}
@@ -479,6 +493,28 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			}
 
 			return result.ToString();
+		}
+
+		private void InputRecorderMenu_Click(object sender, EventArgs e) {
+			UsbDevice? device = null;
+
+			if (this.inputRecorderMenu.Tag is LibUsbDevice libUsbDevice) {
+				device = libUsbDevice;
+			}
+			if (this.inputRecorderMenu.Tag is WinUsbDevice winUsbDevice) {
+				device = winUsbDevice;
+			}
+
+			if (device != null) {
+				if (!device.Open()) {
+					MessageBox.Show(this, "Could not open device for input recording.", "Input Recorder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				} else {
+					new InputRecorder {
+						Device = device
+					}.ShowDialog(this);		
+					device.Close();
+				}
+			}
 		}
 	}
 }
