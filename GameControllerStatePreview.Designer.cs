@@ -31,6 +31,10 @@
 			this.valueHeader = new System.Windows.Forms.ColumnHeader();
 			this.livePreviewSplit = new System.Windows.Forms.SplitContainer();
 			this.inputGroup = new System.Windows.Forms.GroupBox();
+			this.baseRadioButtons = new System.Windows.Forms.TableLayoutPanel();
+			this.hexadecimalRadioButton = new System.Windows.Forms.RadioButton();
+			this.decimalRadioButton = new System.Windows.Forms.RadioButton();
+			this.label1 = new System.Windows.Forms.Label();
 			this.outputSplit = new System.Windows.Forms.SplitContainer();
 			this.outputGroup = new System.Windows.Forms.GroupBox();
 			this.outputTable = new System.Windows.Forms.TableLayoutPanel();
@@ -48,6 +52,7 @@
 			this.livePreviewSplit.Panel2.SuspendLayout();
 			this.livePreviewSplit.SuspendLayout();
 			this.inputGroup.SuspendLayout();
+			this.baseRadioButtons.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.outputSplit)).BeginInit();
 			this.outputSplit.Panel1.SuspendLayout();
 			this.outputSplit.Panel2.SuspendLayout();
@@ -75,7 +80,7 @@
 			this.livePreviewFields.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.livePreviewFields.Location = new System.Drawing.Point(3, 19);
 			this.livePreviewFields.Name = "livePreviewFields";
-			this.livePreviewFields.Size = new System.Drawing.Size(380, 413);
+			this.livePreviewFields.Size = new System.Drawing.Size(380, 408);
 			this.livePreviewFields.TabIndex = 0;
 			this.livePreviewFields.UseCompatibleStateImageBehavior = false;
 			this.livePreviewFields.View = System.Windows.Forms.View.Details;
@@ -104,20 +109,71 @@
 			// livePreviewSplit.Panel2
 			// 
 			this.livePreviewSplit.Panel2.Controls.Add(this.outputSplit);
-			this.livePreviewSplit.Size = new System.Drawing.Size(776, 435);
+			this.livePreviewSplit.Size = new System.Drawing.Size(776, 455);
 			this.livePreviewSplit.SplitterDistance = 386;
 			this.livePreviewSplit.TabIndex = 1;
 			// 
 			// inputGroup
 			// 
 			this.inputGroup.Controls.Add(this.livePreviewFields);
+			this.inputGroup.Controls.Add(this.baseRadioButtons);
 			this.inputGroup.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.inputGroup.Location = new System.Drawing.Point(0, 0);
 			this.inputGroup.Name = "inputGroup";
-			this.inputGroup.Size = new System.Drawing.Size(386, 435);
+			this.inputGroup.Size = new System.Drawing.Size(386, 455);
 			this.inputGroup.TabIndex = 0;
 			this.inputGroup.TabStop = false;
 			this.inputGroup.Text = "Input";
+			// 
+			// baseRadioButtons
+			// 
+			this.baseRadioButtons.ColumnCount = 3;
+			this.baseRadioButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+			this.baseRadioButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+			this.baseRadioButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+			this.baseRadioButtons.Controls.Add(this.hexadecimalRadioButton, 2, 0);
+			this.baseRadioButtons.Controls.Add(this.decimalRadioButton, 1, 0);
+			this.baseRadioButtons.Controls.Add(this.label1, 0, 0);
+			this.baseRadioButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.baseRadioButtons.Location = new System.Drawing.Point(3, 427);
+			this.baseRadioButtons.Name = "baseRadioButtons";
+			this.baseRadioButtons.RowCount = 1;
+			this.baseRadioButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.baseRadioButtons.Size = new System.Drawing.Size(380, 25);
+			this.baseRadioButtons.TabIndex = 3;
+			// 
+			// hexadecimalRadioButton
+			// 
+			this.hexadecimalRadioButton.AutoSize = true;
+			this.hexadecimalRadioButton.Location = new System.Drawing.Point(255, 3);
+			this.hexadecimalRadioButton.Name = "hexadecimalRadioButton";
+			this.hexadecimalRadioButton.Size = new System.Drawing.Size(117, 19);
+			this.hexadecimalRadioButton.TabIndex = 2;
+			this.hexadecimalRadioButton.TabStop = true;
+			this.hexadecimalRadioButton.Text = "&Hexadecimal (16)";
+			this.hexadecimalRadioButton.UseVisualStyleBackColor = true;
+			// 
+			// decimalRadioButton
+			// 
+			this.decimalRadioButton.AutoSize = true;
+			this.decimalRadioButton.Location = new System.Drawing.Point(129, 3);
+			this.decimalRadioButton.Name = "decimalRadioButton";
+			this.decimalRadioButton.Size = new System.Drawing.Size(91, 19);
+			this.decimalRadioButton.TabIndex = 1;
+			this.decimalRadioButton.TabStop = true;
+			this.decimalRadioButton.Text = "&Decimal (10)";
+			this.decimalRadioButton.UseVisualStyleBackColor = true;
+			this.decimalRadioButton.CheckedChanged += new System.EventHandler(this.NumericDataBaseRadioButton_CheckedChanged);
+			// 
+			// label1
+			// 
+			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(3, 5);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(109, 15);
+			this.label1.TabIndex = 3;
+			this.label1.Text = "Show input data in:";
 			// 
 			// outputSplit
 			// 
@@ -134,8 +190,8 @@
 			// outputSplit.Panel2
 			// 
 			this.outputSplit.Panel2.Controls.Add(this.fieldVisibilityGroup);
-			this.outputSplit.Size = new System.Drawing.Size(386, 435);
-			this.outputSplit.SplitterDistance = 260;
+			this.outputSplit.Size = new System.Drawing.Size(386, 455);
+			this.outputSplit.SplitterDistance = 280;
 			this.outputSplit.TabIndex = 1;
 			// 
 			// outputGroup
@@ -144,7 +200,7 @@
 			this.outputGroup.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.outputGroup.Location = new System.Drawing.Point(0, 0);
 			this.outputGroup.Name = "outputGroup";
-			this.outputGroup.Size = new System.Drawing.Size(386, 260);
+			this.outputGroup.Size = new System.Drawing.Size(386, 280);
 			this.outputGroup.TabIndex = 0;
 			this.outputGroup.TabStop = false;
 			this.outputGroup.Text = "Output";
@@ -165,14 +221,14 @@
 			this.outputTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.outputTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.outputTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.outputTable.Size = new System.Drawing.Size(380, 238);
+			this.outputTable.Size = new System.Drawing.Size(380, 258);
 			this.outputTable.TabIndex = 0;
 			// 
 			// leftActuatorLabel
 			// 
 			this.leftActuatorLabel.AutoSize = true;
 			this.leftActuatorLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.leftActuatorLabel.Location = new System.Drawing.Point(3, 44);
+			this.leftActuatorLabel.Location = new System.Drawing.Point(3, 49);
 			this.leftActuatorLabel.Name = "leftActuatorLabel";
 			this.leftActuatorLabel.Size = new System.Drawing.Size(374, 15);
 			this.leftActuatorLabel.TabIndex = 0;
@@ -182,7 +238,7 @@
 			// 
 			this.rightActuatorLabel.AutoSize = true;
 			this.rightActuatorLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.rightActuatorLabel.Location = new System.Drawing.Point(3, 162);
+			this.rightActuatorLabel.Location = new System.Drawing.Point(3, 177);
 			this.rightActuatorLabel.Name = "rightActuatorLabel";
 			this.rightActuatorLabel.Size = new System.Drawing.Size(374, 15);
 			this.rightActuatorLabel.TabIndex = 1;
@@ -192,7 +248,7 @@
 			// 
 			this.leftActuatorStrength.Dock = System.Windows.Forms.DockStyle.Top;
 			this.leftActuatorStrength.LargeChange = 8192;
-			this.leftActuatorStrength.Location = new System.Drawing.Point(3, 62);
+			this.leftActuatorStrength.Location = new System.Drawing.Point(3, 67);
 			this.leftActuatorStrength.Maximum = 65535;
 			this.leftActuatorStrength.Name = "leftActuatorStrength";
 			this.leftActuatorStrength.Size = new System.Drawing.Size(374, 45);
@@ -204,7 +260,7 @@
 			// 
 			this.rightActuatorStrength.Dock = System.Windows.Forms.DockStyle.Top;
 			this.rightActuatorStrength.LargeChange = 8192;
-			this.rightActuatorStrength.Location = new System.Drawing.Point(3, 180);
+			this.rightActuatorStrength.Location = new System.Drawing.Point(3, 195);
 			this.rightActuatorStrength.Maximum = 65535;
 			this.rightActuatorStrength.Name = "rightActuatorStrength";
 			this.rightActuatorStrength.Size = new System.Drawing.Size(374, 45);
@@ -250,7 +306,7 @@
 			this.fieldVisibilityReported.Size = new System.Drawing.Size(160, 19);
 			this.fieldVisibilityReported.TabIndex = 0;
 			this.fieldVisibilityReported.TabStop = true;
-			this.fieldVisibilityReported.Text = "Only show reported fields";
+			this.fieldVisibilityReported.Text = "Only show &reported fields";
 			this.fieldVisibilityReported.UseVisualStyleBackColor = true;
 			this.fieldVisibilityReported.CheckedChanged += new System.EventHandler(this.FieldVisibility_CheckedChanged);
 			// 
@@ -262,7 +318,7 @@
 			this.fieldVisibilityAll.Name = "fieldVisibilityAll";
 			this.fieldVisibilityAll.Size = new System.Drawing.Size(100, 19);
 			this.fieldVisibilityAll.TabIndex = 1;
-			this.fieldVisibilityAll.Text = "Show all fields";
+			this.fieldVisibilityAll.Text = "Show &all fields";
 			this.fieldVisibilityAll.UseVisualStyleBackColor = true;
 			this.fieldVisibilityAll.CheckedChanged += new System.EventHandler(this.FieldVisibility_CheckedChanged);
 			// 
@@ -280,7 +336,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(784, 441);
+			this.ClientSize = new System.Drawing.Size(784, 461);
 			this.Controls.Add(this.livePreviewSplit);
 			this.Name = "GameControllerStatePreview";
 			this.Padding = new System.Windows.Forms.Padding(4, 2, 4, 4);
@@ -292,6 +348,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.livePreviewSplit)).EndInit();
 			this.livePreviewSplit.ResumeLayout(false);
 			this.inputGroup.ResumeLayout(false);
+			this.baseRadioButtons.ResumeLayout(false);
+			this.baseRadioButtons.PerformLayout();
 			this.outputSplit.Panel1.ResumeLayout(false);
 			this.outputSplit.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.outputSplit)).EndInit();
@@ -328,5 +386,9 @@
 		private RadioButton fieldVisibilityReported;
 		private RadioButton fieldVisibilityAll;
 		private Label fieldVisibilityLabel;
+		private TableLayoutPanel baseRadioButtons;
+		private RadioButton hexadecimalRadioButton;
+		private RadioButton decimalRadioButton;
+		private Label label1;
 	}
 }

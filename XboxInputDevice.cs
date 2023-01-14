@@ -48,10 +48,10 @@
 			public byte White;
 			public byte LeftTrigger;
 			public byte RightTrigger;
-			public ushort LeftStickX;
-			public ushort LeftStickY;
-			public ushort RightStickX;
-			public ushort RightStickY;
+			public short LeftStickX;
+			public short LeftStickY;
+			public short RightStickX;
+			public short RightStickY;
 
 			public GameControllerInputState(byte[] report) {
 				this.DigitalButtons = (GameControllerDigitalButtons)report[2];
@@ -64,10 +64,10 @@
 				this.White = report[9];
 				this.LeftTrigger = report[10];
 				this.RightTrigger = report[11];
-				this.LeftStickX = (ushort)(report[12] | (report[13] << 8));
-				this.LeftStickY = (ushort)(report[14] | (report[15] << 8));
-				this.RightStickX = (ushort)(report[16] | (report[17] << 8));
-				this.RightStickY = (ushort)(report[18] | (report[19] << 8));
+				this.LeftStickX = (short)(report[12] | (report[13] << 8));
+				this.LeftStickY = (short)(report[14] | (report[15] << 8));
+				this.RightStickX = (short)(report[16] | (report[17] << 8));
+				this.RightStickY = (short)(report[18] | (report[19] << 8));
 			}
 
 		};

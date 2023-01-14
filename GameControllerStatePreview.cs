@@ -10,6 +10,66 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 		public UsbDevice? Device { get; set; }
 		public bool ShowUnusedFields { get; set; }
 
+		private int numericDataBase = 10;
+		public int NumericDataBase {
+			get { return this.numericDataBase; }
+			set {
+				switch (value) {
+					case 10:
+						this.numericDataBase = value;
+						this.decimalRadioButton.Checked = true;
+						break;
+					case 16:
+						this.numericDataBase = value;
+						this.hexadecimalRadioButton.Checked = true;
+						break;
+					default:
+						throw new InvalidOperationException();
+				}
+			}
+		}
+
+		private void NumericDataBaseRadioButton_CheckedChanged(object sender, EventArgs e) {
+			if (this.decimalRadioButton.Checked) {
+				this.NumericDataBase = 10;
+			} else if (this.hexadecimalRadioButton.Checked) {
+				this.NumericDataBase = 16;
+			}
+		}
+
+		private string ByteFormatString {
+			get {
+				switch (this.NumericDataBase) {
+					case 16:
+						return "0x{0:X2}";
+					default:
+						return "{0}";
+				}
+			}
+		}
+
+		private string UShortFormatString {
+			get {
+				switch (this.NumericDataBase) {
+					case 16:
+						return "0x{0:X4}";
+					default:
+						return "{0}";
+				}
+			}
+		}
+
+		private string ShortCoordinatesFormatString {
+			get {
+				switch (this.NumericDataBase) {
+					case 16:
+						return "(0x{0:X4},0x{1:X4})";
+					default:
+						return "({0,6:0},{1,6:0})";
+				}
+			}
+		}
+
 		[AllowNull] ListViewItem.ListViewSubItem dpad;
 		[AllowNull] ListViewItem.ListViewSubItem start;
 		[AllowNull] ListViewItem.ListViewSubItem back;
@@ -187,6 +247,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 
 		private void GameControllerStatePreview_Load(object sender, EventArgs e) {
 
+			this.NumericDataBase = this.NumericDataBase;
 			this.AddAllPreviewFields();
 
 			// double-buffer list view
@@ -281,18 +342,18 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 						this.lightGunUnknown1.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown1) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
 						this.lightGunUnknown2.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown2) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
 
-						this.a.Text = "0x" + state.A.ToString("X2");
-						this.b.Text = "0x" + state.B.ToString("X2");
-						this.x.Text = "0x" + state.X.ToString("X2");
-						this.y.Text = "0x" + state.Y.ToString("X2");
-						this.black.Text = "0x" + state.Black.ToString("X2");
-						this.white.Text = "0x" + state.White.ToString("X2");
+						this.a.Text = string.Format(ByteFormatString, state.A);
+						this.b.Text = string.Format(ByteFormatString, state.B);
+						this.x.Text = string.Format(ByteFormatString, state.X);
+						this.y.Text = string.Format(ByteFormatString, state.Y);
+						this.black.Text = string.Format(ByteFormatString, state.Black);
+						this.white.Text = string.Format(ByteFormatString, state.White);
 
-						this.leftTrigger.Text = "0x" + state.LeftTrigger.ToString("X2");
-						this.rightTrigger.Text = "0x" + state.RightTrigger.ToString("X2");
+						this.leftTrigger.Text = string.Format(ByteFormatString, state.LeftTrigger);
+						this.rightTrigger.Text = string.Format(ByteFormatString, state.RightTrigger);
 
-						this.leftStick.Text = string.Format("(0x{0:X4}, 0x{1:X4})", state.LeftStickX, state.LeftStickY);
-						this.rightStick.Text = string.Format("(0x{0:X4}, 0x{1:X4})", state.RightStickX, state.RightStickY);
+						this.leftStick.Text = string.Format(ShortCoordinatesFormatString, state.LeftStickX, state.LeftStickY);
+						this.rightStick.Text = string.Format(ShortCoordinatesFormatString, state.RightStickX, state.RightStickY);
 
 					}
 				}
@@ -336,5 +397,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 				}
 			}
 		}
+
+		
 	}
 }
