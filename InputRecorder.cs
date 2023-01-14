@@ -218,7 +218,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 								};
 								this.recordedDataList.Items.Add(item);
 
-								item.SubItems.Add(recordedDataPoint.Value.Length.ToString());
+								item.SubItems.Add(string.Format("{0} bytes", recordedDataPoint.Value.Length.ToString()));
 
 								var dataText = new StringBuilder(recordedDataPoint.Value.Length * 3);
 								for (int i = 0; i < recordedDataPoint.Value.Length; ++i) {
@@ -247,9 +247,9 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 				foreach (ListViewItem item in group.Items) {
 					result.Append((item.Text + ":").PadRight(10));
 					if (item.SubItems.Count > 1) {
-						result.Append(item.SubItems[1].Text.PadLeft(6));
+						result.Append(item.SubItems[1].Text.PadLeft(10));
 						if (item.SubItems.Count > 2) {
-							result.Append("    ");
+							result.Append("  <-  ");
 							result.Append(item.SubItems[2].Text);
 						}
 					}
