@@ -8,6 +8,9 @@ The connected controller must have a libusb or WinUSB driver installed for it fo
 [Zadig](https://zadig.akeo.ie/) is recommended to install an appropriate driver for the controller.
 
 Devices that act like conventional Xbox game controllers (e.g. game pads, steering wheels, arcade sticks, light guns) can be queried in a "live preview".
-This shows the current state of the available buttons and axes.
+This shows the current state of the available buttons and axes. This polls the controller via the control endpoint.
+
+There is also an Input Recorder that logs data directly from an input interrupt endpoint.
+This allows devices that don't report a standard XID descriptor to be inspected.
 
 The [Xbox Input Devices section of the xboxdevwiki](https://xboxdevwiki.net/Xbox_Input_Devices) provides more useful information about Xbox controllers.
