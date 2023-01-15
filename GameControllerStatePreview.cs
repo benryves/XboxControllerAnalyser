@@ -2,6 +2,7 @@
 using LibUsbDotNet.Main;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace BeeDevelopment.XboxControllerAnalyser {
@@ -160,6 +161,35 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			// get capabilities to hide unused fields
 			if (this.Device != null) {
 
+				// descriptor
+				{
+					var setupPacket = new UsbSetupPacket {
+						RequestType = 0xC1,
+						Request = 6,
+						Value = 0x4200,
+						Index = 0,
+						Length = 16,
+					};
+
+					var response = new byte[setupPacket.Length];
+					var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
+					bool success = false;
+
+					try {
+						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == response.Length;
+					} finally {
+						handle.Free();
+					}
+
+					if (success && response[4] == 0x01 && response[5] == 0x50) {
+						this.lightGunCalibrationChanged = true;
+					} else {
+						this.lightGunCalibrationGroup.Enabled = false;
+						this.lightGunCalibrationGroup.Visible = false;
+						this.controlTable.RowStyles[1].Height = 0;
+					}
+				}
+
 				// input
 				{
 					var setupPacket = new UsbSetupPacket {
@@ -309,52 +339,109 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			if (this.Device != null) {
 
 				{
-					// GET_REPORT
-					var setupPacket = new UsbSetupPacket {
-						RequestType = 0xA1,
-						Request = 1,
-						Value = 0x0100,
-						Index = 0,
-						Length = 20,
-					};
 
-					var response = new byte[setupPacket.Length];
-					var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
-					bool success = false;
+					// Calibrate light gun
+					if (lightGunCalibrationChanged) {
+						var setupPacket = new UsbSetupPacket {
+							RequestType = 0x21,
+							Request = 9,
+							Value = 0x0201,
+							Index = 0,
+							Length = 10,
+						};
 
-					try {
-						success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == response.Length;
-					} finally {
-						handle.Free();
+						var report = new XboxInputDevice.GameControllerLightGunCalibrationState {
+							CentreXOffset = (short)this.lightGunCalibrationCentreX.Value,
+							CentreYOffset = (short)this.lightGunCalibrationCentreY.Value,
+							TopLeftXOffset = (short)this.lightGunCalibrationTopLeftX.Value,
+							TopLeftYOffset = (short)this.lightGunCalibrationTopLeftY.Value,
+						};
+						var data = report.GetBytes();
+
+						var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+						bool success = false;
+
+						try {
+							success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == data.Length;
+						} finally {
+							handle.Free();
+						}
+
+						if (success) {
+							lightGunCalibrationChanged = false;
+						} else {
+							this.lightGunCalibrationGroup.Enabled = false;
+						}
 					}
 
-					if (this.inputGroup.Enabled = success) {
+					{
+						// GET_REPORT
+						var setupPacket = new UsbSetupPacket {
+							RequestType = 0xA1,
+							Request = 1,
+							Value = 0x0100,
+							Index = 0,
+							Length = 20,
+						};
 
-						var state = new XboxInputDevice.GameControllerInputState(response);
+						var response = new byte[setupPacket.Length];
+						var handle = GCHandle.Alloc(response, GCHandleType.Pinned);
+						bool success = false;
 
-						this.dpad.Text = (state.DigitalButtons & (XboxInputDevice.GameControllerDigitalButtons.Up | XboxInputDevice.GameControllerDigitalButtons.Down | XboxInputDevice.GameControllerDigitalButtons.Left | XboxInputDevice.GameControllerDigitalButtons.Right)).ToString();
-						this.start.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Start) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
-						this.back.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Back) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
-						this.leftStickButton.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.LeftStick) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
-						this.rightStickButton.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.RightStick) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+						try {
+							success = this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == response.Length;
+						} finally {
+							handle.Free();
+						}
 
-						this.lightGunLightVisible.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.LightVisible) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
-						this.lightGunUnknown1.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown1) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
-						this.lightGunUnknown2.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown2) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
+						if (this.inputGroup.Enabled = success) {
 
-						this.a.Text = string.Format(ByteFormatString, state.A);
-						this.b.Text = string.Format(ByteFormatString, state.B);
-						this.x.Text = string.Format(ByteFormatString, state.X);
-						this.y.Text = string.Format(ByteFormatString, state.Y);
-						this.black.Text = string.Format(ByteFormatString, state.Black);
-						this.white.Text = string.Format(ByteFormatString, state.White);
+							var state = new XboxInputDevice.GameControllerInputState(response);
 
-						this.leftTrigger.Text = string.Format(ByteFormatString, state.LeftTrigger);
-						this.rightTrigger.Text = string.Format(ByteFormatString, state.RightTrigger);
+							this.dpad.Text = (state.DigitalButtons & (XboxInputDevice.GameControllerDigitalButtons.Up | XboxInputDevice.GameControllerDigitalButtons.Down | XboxInputDevice.GameControllerDigitalButtons.Left | XboxInputDevice.GameControllerDigitalButtons.Right)).ToString();
+							this.start.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Start) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+							this.back.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.Back) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+							this.leftStickButton.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.LeftStick) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
+							this.rightStickButton.Text = ((state.DigitalButtons & XboxInputDevice.GameControllerDigitalButtons.RightStick) != XboxInputDevice.GameControllerDigitalButtons.None).ToString();
 
-						this.leftStick.Text = string.Format(ShortCoordinatesFormatString, state.LeftStickX, state.LeftStickY);
-						this.rightStick.Text = string.Format(ShortCoordinatesFormatString, state.RightStickX, state.RightStickY);
+							this.lightGunLightVisible.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.LightVisible) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
+							this.lightGunUnknown1.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown1) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
+							this.lightGunUnknown2.Text = ((state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.Unknown2) != XboxInputDevice.GameControllerLightGunFlags.None).ToString();
 
+							this.a.Text = string.Format(ByteFormatString, state.A);
+							this.b.Text = string.Format(ByteFormatString, state.B);
+							this.x.Text = string.Format(ByteFormatString, state.X);
+							this.y.Text = string.Format(ByteFormatString, state.Y);
+							this.black.Text = string.Format(ByteFormatString, state.Black);
+							this.white.Text = string.Format(ByteFormatString, state.White);
+
+							this.leftTrigger.Text = string.Format(ByteFormatString, state.LeftTrigger);
+							this.rightTrigger.Text = string.Format(ByteFormatString, state.RightTrigger);
+
+							this.leftStick.Text = string.Format(ShortCoordinatesFormatString, state.LeftStickX, state.LeftStickY);
+							this.rightStick.Text = string.Format(ShortCoordinatesFormatString, state.RightStickX, state.RightStickY);
+
+							if (this.lightGunCalibrationGroup.Enabled && state.A > 127 && (state.LightGunFlags & XboxInputDevice.GameControllerLightGunFlags.LightVisible) != XboxInputDevice.GameControllerLightGunFlags.None) {
+								if (this.lightGunCalibrateCentreCheckbox.Checked) {
+
+									this.lightGunCalibrateCentreCheckbox.Checked = false;
+
+									this.lightGunCalibrationCentreX.Value = Math.Max(short.MinValue, Math.Min(short.MaxValue, -state.LeftStickX + this.lightGunCalibrationCentreX.Value));
+									this.lightGunCalibrationCentreY.Value = Math.Max(short.MinValue, Math.Min(short.MaxValue, -state.LeftStickY + this.lightGunCalibrationCentreY.Value));
+
+									this.lightGunCalibrationChanged = true;
+								}
+								if (this.lightGunCalibrateTopLeftCheckbox.Checked) {
+									this.lightGunCalibrateTopLeftCheckbox.Checked = false;
+
+									this.lightGunCalibrationTopLeftX.Value = Math.Max(short.MinValue, Math.Min(short.MaxValue, -25000 - state.LeftStickX));
+									this.lightGunCalibrationTopLeftY.Value = Math.Max(short.MinValue, Math.Min(short.MaxValue, +25000 - state.LeftStickY));
+
+									this.lightGunCalibrationChanged = true;
+								}
+							}
+
+						}
 					}
 				}
 
@@ -378,7 +465,7 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 
 					try {
-						this.outputGroup.Enabled = (this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == setupPacket.Length);
+						this.forceFeedbackOutputGroup.Enabled = (this.Device.ControlTransfer(ref setupPacket, handle.AddrOfPinnedObject(), setupPacket.Length, out int length) && length == setupPacket.Length);
 					} finally {
 						handle.Free();
 					}
@@ -398,6 +485,32 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 			}
 		}
 
-		
+		bool lightGunCalibrationChanged = true;
+
+		private void LightGunCalibrationTrackBar_Scroll(object sender, EventArgs e) {
+			lightGunCalibrationChanged = true;
+		}
+
+		private void CalibrateCheckbox_CheckedChanged(object sender, EventArgs e) {
+			var checkbox = sender as CheckBox;
+			if (checkbox == null) {
+				lightGunCalibrateCentreCheckbox.Checked = false;
+				lightGunCalibrateTopLeftCheckbox.Checked = false;
+			} else if (checkbox.Checked) {
+				if (checkbox == lightGunCalibrateCentreCheckbox) {
+					lightGunCalibrateTopLeftCheckbox.Checked = false;
+					this.lightGunCalibrationCentreX.Value = 0;
+					this.lightGunCalibrationCentreY.Value = 0;
+					this.lightGunCalibrationTopLeftX.Value = 0;
+					this.lightGunCalibrationTopLeftY.Value = 0;
+					this.lightGunCalibrationChanged = true;
+				} else if (checkbox == lightGunCalibrateTopLeftCheckbox) {
+					lightGunCalibrateCentreCheckbox.Checked = false;
+					this.lightGunCalibrationTopLeftX.Value = 0;
+					this.lightGunCalibrationTopLeftY.Value = 0;
+					this.lightGunCalibrationChanged = true;
+				}
+			}
+		}
 	}
 }

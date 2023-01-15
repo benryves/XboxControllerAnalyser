@@ -95,5 +95,37 @@
 
 		}
 
+		public struct GameControllerLightGunCalibrationState {
+
+			public short CentreXOffset;
+			public short CentreYOffset;
+
+			public short TopLeftXOffset;
+			public short TopLeftYOffset;
+
+			public GameControllerLightGunCalibrationState(byte[] report) {
+				this.CentreXOffset = (short)(report[2] | (report[3] << 8));
+				this.CentreYOffset = (short)(report[4] | (report[5] << 8));
+				this.TopLeftXOffset = (short)(report[6] | (report[7] << 8));
+				this.TopLeftYOffset = (short)(report[8] | (report[9] << 8));
+
+			}
+
+			public byte[] GetBytes() {
+				var report = new byte[10];
+				report[0] = 1;
+				report[1] = 10;
+				report[2] = (byte)this.CentreXOffset;
+				report[3] = (byte)(this.CentreXOffset >> 8);
+				report[4] = (byte)this.CentreYOffset;
+				report[5] = (byte)(this.CentreYOffset >> 8);
+				report[6] = (byte)this.TopLeftXOffset;
+				report[7] = (byte)(this.TopLeftXOffset >> 8);
+				report[8] = (byte)this.TopLeftYOffset;
+				report[9] = (byte)(this.TopLeftYOffset >> 8);
+				return report;
+			}
+
+		}
 	}
 }
