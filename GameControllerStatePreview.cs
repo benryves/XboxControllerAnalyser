@@ -19,10 +19,14 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					case 10:
 						this.numericDataBase = value;
 						this.decimalRadioButton.Checked = true;
+						this.leftActuatorSpinner.Hexadecimal = false;
+						this.rightActuatorSpinner.Hexadecimal = false;
 						break;
 					case 16:
 						this.numericDataBase = value;
 						this.hexadecimalRadioButton.Checked = true;
+						this.leftActuatorSpinner.Hexadecimal = true;
+						this.rightActuatorSpinner.Hexadecimal = true;
 						break;
 					default:
 						throw new InvalidOperationException();
@@ -510,6 +514,30 @@ namespace BeeDevelopment.XboxControllerAnalyser {
 					this.lightGunCalibrationTopLeftY.Value = 0;
 					this.lightGunCalibrationChanged = true;
 				}
+			}
+		}
+
+		private void LeftActuatorSpinner_ValueChanged(object sender, EventArgs e) {
+			if (this.leftActuatorStrength.Value != (int)this.leftActuatorSpinner.Value) {
+				this.leftActuatorStrength.Value = (int)this.leftActuatorSpinner.Value;
+			}
+		}
+
+		private void RightActuatorSpinner_ValueChanged(object sender, EventArgs e) {
+			if (this.rightActuatorStrength.Value != (int)this.rightActuatorSpinner.Value) {
+				this.rightActuatorStrength.Value = (int)this.rightActuatorSpinner.Value;
+			}
+		}
+
+		private void LeftActuatorStrength_ValueChanged(object sender, EventArgs e) {
+			if ((int)this.leftActuatorSpinner.Value != this.leftActuatorStrength.Value) {
+				this.leftActuatorSpinner.Value = this.leftActuatorStrength.Value;
+			}
+		}
+
+		private void RightActuatorStrength_ValueChanged(object sender, EventArgs e) {
+			if ((int)this.rightActuatorSpinner.Value != this.rightActuatorStrength.Value) {
+				this.rightActuatorSpinner.Value = this.rightActuatorStrength.Value;
 			}
 		}
 	}

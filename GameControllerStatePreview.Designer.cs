@@ -45,8 +45,12 @@
 			this.outputForceFeedbackTable = new System.Windows.Forms.TableLayoutPanel();
 			this.leftActuatorLabel = new System.Windows.Forms.Label();
 			this.rightActuatorLabel = new System.Windows.Forms.Label();
+			this.leftActuatorPanel = new System.Windows.Forms.Panel();
 			this.leftActuatorStrength = new System.Windows.Forms.TrackBar();
+			this.leftActuatorSpinner = new System.Windows.Forms.NumericUpDown();
+			this.rightActuatorPanel = new System.Windows.Forms.Panel();
 			this.rightActuatorStrength = new System.Windows.Forms.TrackBar();
+			this.rightActuatorSpinner = new System.Windows.Forms.NumericUpDown();
 			this.lightGunCalibrationGroup = new System.Windows.Forms.GroupBox();
 			this.lightGunCalibrationTable = new System.Windows.Forms.TableLayoutPanel();
 			this.lightGunCalibrationTopLeftGroup = new System.Windows.Forms.GroupBox();
@@ -55,6 +59,7 @@
 			this.lightGunCalibrationTopLeftYLabel = new System.Windows.Forms.Label();
 			this.lightGunCalibrationTopLeftX = new System.Windows.Forms.TrackBar();
 			this.lightGunCalibrationTopLeftXLabel = new System.Windows.Forms.Label();
+			this.lightGunCalibrateTopLeftCheckbox = new System.Windows.Forms.CheckBox();
 			this.lightGunCalibrationCentreGroup = new System.Windows.Forms.GroupBox();
 			this.lightGunCalibrationCentreTable = new System.Windows.Forms.TableLayoutPanel();
 			this.lightGunCalibrationCentreY = new System.Windows.Forms.TrackBar();
@@ -62,7 +67,6 @@
 			this.lightGunCalibrationCentreX = new System.Windows.Forms.TrackBar();
 			this.lightGunCalibrationCentreXLabel = new System.Windows.Forms.Label();
 			this.lightGunCalibrateCentreCheckbox = new System.Windows.Forms.CheckBox();
-			this.lightGunCalibrateTopLeftCheckbox = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.livePreviewSplit)).BeginInit();
 			this.livePreviewSplit.Panel1.SuspendLayout();
 			this.livePreviewSplit.Panel2.SuspendLayout();
@@ -74,8 +78,12 @@
 			this.fieldVisibilityTable.SuspendLayout();
 			this.forceFeedbackOutputGroup.SuspendLayout();
 			this.outputForceFeedbackTable.SuspendLayout();
+			this.leftActuatorPanel.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.leftActuatorStrength)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.leftActuatorSpinner)).BeginInit();
+			this.rightActuatorPanel.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.rightActuatorStrength)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.rightActuatorSpinner)).BeginInit();
 			this.lightGunCalibrationGroup.SuspendLayout();
 			this.lightGunCalibrationTable.SuspendLayout();
 			this.lightGunCalibrationTopLeftGroup.SuspendLayout();
@@ -297,8 +305,8 @@
 			this.outputForceFeedbackTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.outputForceFeedbackTable.Controls.Add(this.leftActuatorLabel, 0, 0);
 			this.outputForceFeedbackTable.Controls.Add(this.rightActuatorLabel, 0, 2);
-			this.outputForceFeedbackTable.Controls.Add(this.leftActuatorStrength, 0, 1);
-			this.outputForceFeedbackTable.Controls.Add(this.rightActuatorStrength, 0, 3);
+			this.outputForceFeedbackTable.Controls.Add(this.leftActuatorPanel, 0, 1);
+			this.outputForceFeedbackTable.Controls.Add(this.rightActuatorPanel, 0, 3);
 			this.outputForceFeedbackTable.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.outputForceFeedbackTable.Location = new System.Drawing.Point(3, 19);
 			this.outputForceFeedbackTable.Name = "outputForceFeedbackTable";
@@ -307,6 +315,7 @@
 			this.outputForceFeedbackTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.outputForceFeedbackTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.outputForceFeedbackTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+			this.outputForceFeedbackTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.outputForceFeedbackTable.Size = new System.Drawing.Size(374, 124);
 			this.outputForceFeedbackTable.TabIndex = 0;
 			// 
@@ -316,7 +325,7 @@
 			this.leftActuatorLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.leftActuatorLabel.Location = new System.Drawing.Point(3, 16);
 			this.leftActuatorLabel.Name = "leftActuatorLabel";
-			this.leftActuatorLabel.Size = new System.Drawing.Size(374, 15);
+			this.leftActuatorLabel.Size = new System.Drawing.Size(368, 15);
 			this.leftActuatorLabel.TabIndex = 0;
 			this.leftActuatorLabel.Text = "Left Actuator Strength";
 			// 
@@ -326,33 +335,85 @@
 			this.rightActuatorLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.rightActuatorLabel.Location = new System.Drawing.Point(3, 78);
 			this.rightActuatorLabel.Name = "rightActuatorLabel";
-			this.rightActuatorLabel.Size = new System.Drawing.Size(374, 15);
+			this.rightActuatorLabel.Size = new System.Drawing.Size(368, 15);
 			this.rightActuatorLabel.TabIndex = 1;
 			this.rightActuatorLabel.Text = "Right Actuator Strength";
 			// 
+			// leftActuatorPanel
+			// 
+			this.leftActuatorPanel.Controls.Add(this.leftActuatorStrength);
+			this.leftActuatorPanel.Controls.Add(this.leftActuatorSpinner);
+			this.leftActuatorPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.leftActuatorPanel.Location = new System.Drawing.Point(3, 34);
+			this.leftActuatorPanel.Name = "leftActuatorPanel";
+			this.leftActuatorPanel.Size = new System.Drawing.Size(368, 25);
+			this.leftActuatorPanel.TabIndex = 4;
+			// 
 			// leftActuatorStrength
 			// 
-			this.leftActuatorStrength.Dock = System.Windows.Forms.DockStyle.Top;
+			this.leftActuatorStrength.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.leftActuatorStrength.LargeChange = 8192;
-			this.leftActuatorStrength.Location = new System.Drawing.Point(3, 34);
+			this.leftActuatorStrength.Location = new System.Drawing.Point(0, 0);
 			this.leftActuatorStrength.Maximum = 65535;
 			this.leftActuatorStrength.Name = "leftActuatorStrength";
-			this.leftActuatorStrength.Size = new System.Drawing.Size(374, 25);
+			this.leftActuatorStrength.Size = new System.Drawing.Size(308, 25);
 			this.leftActuatorStrength.SmallChange = 2048;
 			this.leftActuatorStrength.TabIndex = 2;
 			this.leftActuatorStrength.TickFrequency = 2048;
+			this.leftActuatorStrength.ValueChanged += new System.EventHandler(this.LeftActuatorStrength_ValueChanged);
+			// 
+			// leftActuatorSpinner
+			// 
+			this.leftActuatorSpinner.Dock = System.Windows.Forms.DockStyle.Right;
+			this.leftActuatorSpinner.Location = new System.Drawing.Point(308, 0);
+			this.leftActuatorSpinner.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+			this.leftActuatorSpinner.Name = "leftActuatorSpinner";
+			this.leftActuatorSpinner.Size = new System.Drawing.Size(60, 23);
+			this.leftActuatorSpinner.TabIndex = 5;
+			this.leftActuatorSpinner.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.leftActuatorSpinner.ValueChanged += new System.EventHandler(this.LeftActuatorSpinner_ValueChanged);
+			// 
+			// rightActuatorPanel
+			// 
+			this.rightActuatorPanel.Controls.Add(this.rightActuatorStrength);
+			this.rightActuatorPanel.Controls.Add(this.rightActuatorSpinner);
+			this.rightActuatorPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rightActuatorPanel.Location = new System.Drawing.Point(3, 96);
+			this.rightActuatorPanel.Name = "rightActuatorPanel";
+			this.rightActuatorPanel.Size = new System.Drawing.Size(368, 25);
+			this.rightActuatorPanel.TabIndex = 5;
 			// 
 			// rightActuatorStrength
 			// 
-			this.rightActuatorStrength.Dock = System.Windows.Forms.DockStyle.Top;
+			this.rightActuatorStrength.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.rightActuatorStrength.LargeChange = 8192;
-			this.rightActuatorStrength.Location = new System.Drawing.Point(3, 96);
+			this.rightActuatorStrength.Location = new System.Drawing.Point(0, 0);
 			this.rightActuatorStrength.Maximum = 65535;
 			this.rightActuatorStrength.Name = "rightActuatorStrength";
-			this.rightActuatorStrength.Size = new System.Drawing.Size(374, 25);
+			this.rightActuatorStrength.Size = new System.Drawing.Size(308, 25);
 			this.rightActuatorStrength.SmallChange = 2048;
 			this.rightActuatorStrength.TabIndex = 3;
 			this.rightActuatorStrength.TickFrequency = 2048;
+			this.rightActuatorStrength.ValueChanged += new System.EventHandler(this.RightActuatorStrength_ValueChanged);
+			// 
+			// rightActuatorSpinner
+			// 
+			this.rightActuatorSpinner.Dock = System.Windows.Forms.DockStyle.Right;
+			this.rightActuatorSpinner.Location = new System.Drawing.Point(308, 0);
+			this.rightActuatorSpinner.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+			this.rightActuatorSpinner.Name = "rightActuatorSpinner";
+			this.rightActuatorSpinner.Size = new System.Drawing.Size(60, 23);
+			this.rightActuatorSpinner.TabIndex = 4;
+			this.rightActuatorSpinner.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.rightActuatorSpinner.ValueChanged += new System.EventHandler(this.RightActuatorSpinner_ValueChanged);
 			// 
 			// lightGunCalibrationGroup
 			// 
@@ -458,6 +519,20 @@
 			this.lightGunCalibrationTopLeftXLabel.TabIndex = 1;
 			this.lightGunCalibrationTopLeftXLabel.Text = "X";
 			// 
+			// lightGunCalibrateTopLeftCheckbox
+			// 
+			this.lightGunCalibrateTopLeftCheckbox.Appearance = System.Windows.Forms.Appearance.Button;
+			this.lightGunCalibrateTopLeftCheckbox.AutoSize = true;
+			this.lightGunCalibrateTopLeftCheckbox.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.lightGunCalibrateTopLeftCheckbox.Location = new System.Drawing.Point(3, 90);
+			this.lightGunCalibrateTopLeftCheckbox.Name = "lightGunCalibrateTopLeftCheckbox";
+			this.lightGunCalibrateTopLeftCheckbox.Size = new System.Drawing.Size(175, 25);
+			this.lightGunCalibrateTopLeftCheckbox.TabIndex = 2;
+			this.lightGunCalibrateTopLeftCheckbox.Text = "Calibrate";
+			this.lightGunCalibrateTopLeftCheckbox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.lightGunCalibrateTopLeftCheckbox.UseVisualStyleBackColor = true;
+			this.lightGunCalibrateTopLeftCheckbox.CheckedChanged += new System.EventHandler(this.CalibrateCheckbox_CheckedChanged);
+			// 
 			// lightGunCalibrationCentreGroup
 			// 
 			this.lightGunCalibrationCentreGroup.Controls.Add(this.lightGunCalibrationCentreTable);
@@ -536,33 +611,19 @@
 			this.lightGunCalibrationCentreXLabel.TabIndex = 1;
 			this.lightGunCalibrationCentreXLabel.Text = "X";
 			// 
-			// checkBox1
+			// lightGunCalibrateCentreCheckbox
 			// 
 			this.lightGunCalibrateCentreCheckbox.Appearance = System.Windows.Forms.Appearance.Button;
 			this.lightGunCalibrateCentreCheckbox.AutoSize = true;
 			this.lightGunCalibrateCentreCheckbox.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.lightGunCalibrateCentreCheckbox.Location = new System.Drawing.Point(3, 90);
-			this.lightGunCalibrateCentreCheckbox.Name = "checkBox1";
+			this.lightGunCalibrateCentreCheckbox.Name = "lightGunCalibrateCentreCheckbox";
 			this.lightGunCalibrateCentreCheckbox.Size = new System.Drawing.Size(175, 25);
 			this.lightGunCalibrateCentreCheckbox.TabIndex = 1;
 			this.lightGunCalibrateCentreCheckbox.Text = "Calibrate";
 			this.lightGunCalibrateCentreCheckbox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.lightGunCalibrateCentreCheckbox.UseVisualStyleBackColor = true;
 			this.lightGunCalibrateCentreCheckbox.CheckedChanged += new System.EventHandler(this.CalibrateCheckbox_CheckedChanged);
-			// 
-			// checkBox2
-			// 
-			this.lightGunCalibrateTopLeftCheckbox.Appearance = System.Windows.Forms.Appearance.Button;
-			this.lightGunCalibrateTopLeftCheckbox.AutoSize = true;
-			this.lightGunCalibrateTopLeftCheckbox.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.lightGunCalibrateTopLeftCheckbox.Location = new System.Drawing.Point(3, 90);
-			this.lightGunCalibrateTopLeftCheckbox.Name = "checkBox2";
-			this.lightGunCalibrateTopLeftCheckbox.Size = new System.Drawing.Size(175, 25);
-			this.lightGunCalibrateTopLeftCheckbox.TabIndex = 2;
-			this.lightGunCalibrateTopLeftCheckbox.Text = "Calibrate";
-			this.lightGunCalibrateTopLeftCheckbox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			this.lightGunCalibrateTopLeftCheckbox.UseVisualStyleBackColor = true;
-			this.lightGunCalibrateTopLeftCheckbox.CheckedChanged += new System.EventHandler(this.CalibrateCheckbox_CheckedChanged);
 			// 
 			// GameControllerStatePreview
 			// 
@@ -589,8 +650,14 @@
 			this.forceFeedbackOutputGroup.ResumeLayout(false);
 			this.outputForceFeedbackTable.ResumeLayout(false);
 			this.outputForceFeedbackTable.PerformLayout();
+			this.leftActuatorPanel.ResumeLayout(false);
+			this.leftActuatorPanel.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.leftActuatorStrength)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.leftActuatorSpinner)).EndInit();
+			this.rightActuatorPanel.ResumeLayout(false);
+			this.rightActuatorPanel.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.rightActuatorStrength)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.rightActuatorSpinner)).EndInit();
 			this.lightGunCalibrationGroup.ResumeLayout(false);
 			this.lightGunCalibrationTable.ResumeLayout(false);
 			this.lightGunCalibrationTopLeftGroup.ResumeLayout(false);
@@ -649,5 +716,9 @@
 		private Label lightGunCalibrationTopLeftXLabel;
 		private CheckBox lightGunCalibrateCentreCheckbox;
 		private CheckBox lightGunCalibrateTopLeftCheckbox;
+		private Panel leftActuatorPanel;
+		private Panel rightActuatorPanel;
+		private NumericUpDown leftActuatorSpinner;
+		private NumericUpDown rightActuatorSpinner;
 	}
 }
